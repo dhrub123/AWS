@@ -5,7 +5,7 @@ Amazon EC2(Elastic Compute Cloud) is a webservice that provides resizable comput
 
 It has changed the economics of computing by allowing to pay for what is being used. It provides the tools needed to build a failure resistent application.
 
-#### Types of Instances 
+#### Types of Instances based on Pricing
 + On Demand - allows to pay by the hour or second(Linux is by second and Windows is by hour)
 + Reserved - Reservation for 1 or 3 years, certain or entire amount upfront, but large discount compared to on demand price.
 + Spot - enables to bid a price for instance capacity, if application has flexible timings, this can lead to significant savings.
@@ -22,4 +22,16 @@ It has changed the economics of computing by allowing to pay for what is being u
   + Standard RIs(upto 75% off on demand) - if entire payment is made upfront and contract is for 3 years
   + Convertible RIs(upto 54% off on demand) - capability to change attribute of instance from say compute to memory intensive provided the     exchange is of equal or greater value 
   + Scheduled RIs - available to launch within a scheduled time window. It allows to obtain compute capacity within a certain recurring     schedule. For example if a company has large sales during fridays, then it will go for RIs scheduled on every friday.
+
+##### Spot Instances
++ Applications with flexible start and end times which are feasible only at a very low cost. e.g. : Genomics and Pharma companies use this to perform research by running resource intensive apps on say a sunday at 4 am when price is very low.
++ Users who suddenly need additional compute capacity
+
+##### Dedicated host
++ Used for regulatory requirement or to save licensing costs which do not allow multi tenant virtualization
++ Can be purchased on demand
++ Can be purchased as a reservation which saves about 70% compared to on demand
+
+#### Types of instances based on hardware
+
 
