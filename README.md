@@ -54,6 +54,7 @@ Remember by **FIGHT DR MCPX**
 
 This is a virtual disk just like EC2 is a virtual machine.  It allows to create storgae volumes and then add to EC2 instance. Once attached we can create a file system , run a database etc. They are placed in a psecific availability zone and are automatically replicated to protect from failure.
 
+##### SSDs
 + General Purpose SSD(GP2) - 
   + General purpose, balances both price and performance
   + 3000 IOPS per gig with upto 10000 IOPS and ability to burst upto 3000 IOPS for extended period of time for volumes at 3334 Gib and above. 
@@ -61,3 +62,12 @@ This is a virtual disk just like EC2 is a virtual machine.  It allows to create 
   + Designed for I/O intensive apps like large relational or NOSQL databases.
   + Used for more than 10000 IOPS
   + Can provision upto 20000 IOPS per volume.
+  
+##### Magnetic volumes
++ Throughput optimized HDD(ST1)
+  + Big Data/ Data warehousing/ Log  processing
+  + **Cannot be a boot volume**
++ Cold HDD(SC1)
+  + Lowest cost for infrequently accessed workloads
+  + Usage may be a file server
+  + **Cannot be a boot volume**
