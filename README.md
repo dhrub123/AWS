@@ -26,6 +26,7 @@ It has changed the economics of computing by allowing to pay for what is being u
 ##### Spot Instances
 + Applications with flexible start and end times which are feasible only at a very low cost. e.g. : Genomics and Pharma companies use this to perform research by running resource intensive apps on say a sunday at 4 am when price is very low.
 + Users who suddenly need additional compute capacity
++ Spot instances are terminated by AWS if spot price for that capacity increases. However Amazon does not charge for partial usage of hour in that case. However, if instance is terminated by customer, then whole hour is charged for.
 
 ##### Dedicated host
 + Used for regulatory requirement or to save licensing costs which do not allow multi tenant virtualization
