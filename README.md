@@ -48,6 +48,8 @@ It has changed the economics of computing by allowing to pay for what is being u
 |P3|General Purpose , Graphics Intensive|Bit coin, Machine Learning|
 |X1|Memory Optimized|SAP HANA, Apache Spark|
 
-Remember by **FIGHTDRMCPX**
+Remember by **FIGHT DR MCPX**
 
+#### EBS(Elastic block storage)
 
+This is a virtual disk just like EC2 is a virtual machine.  It allows to create storgae volumes and then add to EC2 instance. Once attached we can create a file system , run a database etc. They are placed in a psecific availability zone and are automatically replicated to protect from failure.
