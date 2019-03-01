@@ -53,3 +53,11 @@ Remember by **FIGHT DR MCPX**
 #### EBS(Elastic block storage)
 
 This is a virtual disk just like EC2 is a virtual machine.  It allows to create storgae volumes and then add to EC2 instance. Once attached we can create a file system , run a database etc. They are placed in a psecific availability zone and are automatically replicated to protect from failure.
+
++ General Purpose SSD(GP2) - 
+  + General purpose, balances both price and performance
+  + 3000 IOPS per gig with upto 10000 IOPS and ability to burst upto 3000 IOPS for extended period of time for volumes at 3334 Gib and above. 
++ Provisioned IOPS SSD(IO1)
+  + Designed for I/O intensive apps like large relational or NOSQL databases.
+  + Used for more than 10000 IOPS
+  + Can provision upto 20000 IOPS per volume.
