@@ -34,4 +34,18 @@ It has changed the economics of computing by allowing to pay for what is being u
 
 #### Types of instances based on hardware
 
+|Family|Speciality|Usecase|
+|------|----------|-------|
+|F1|Field gate programmable array|Genomic research, Video processing, Financial analytics, big data|
+|I3|High Speed Storage|No SQL DB and Data Warehousing|
+|G3|Graphics Intensive|Video Encoding|
+|H1|High Disk throughput|Distributed file systems like HDFS and Map Reduce based workloads|
+|T2|Lowest Cost General Purpose| Web Server, Small DBs|
+|D2|Dense Storage|File Servers, Data Warehouse, Hadoop|
+|R4|Memory Optimized|Memory Intensive Apps, DB|
+|M5|General Purpose|Application Servers|
+|C5|Compute Ompimized|CPU Intensive Apps/DBs|
+|P3|General Purpose , Graphics Intensive|Bit coin, Machine Learning|
+|X1|Memory Optimized|SAP HANA, Apache Spark|
+
 
