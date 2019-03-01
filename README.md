@@ -75,5 +75,6 @@ This is a virtual disk just like EC2 is a virtual machine.  It allows to create 
 + Magnetic(standard)
   + Lowest cost per gigabyte for all EBS volumes that is **bootable**
   + Ideal for workloads where data is accessed infrequently and where emphasis is on lowest storgae cost.
+  + Previous generation
   
 
