@@ -66,8 +66,13 @@ This is a virtual disk just like EC2 is a virtual machine.  It allows to create 
 ##### Magnetic volumes
 + Throughput optimized HDD(ST1)
   + Big Data/ Data warehousing/ Log  processing
-  + **Cannot be a boot volume**
+  + Can only be an additional volume and **not a boot volume**
 + Cold HDD(SC1)
   + Lowest cost for infrequently accessed workloads
   + Usage may be a file server
-  + **Cannot be a boot volume**
+  + Can only be an additional volume and **not a boot volume**
++ Magnetic(standard)
+  + Lowest cost per gigabyte for all EBS volumes that is **bootable**
+  + Ideal for workloads where data is accessed infrequently and where emphasis is on lowest storgae cost.
+  
+
