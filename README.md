@@ -48,4 +48,6 @@ It has changed the economics of computing by allowing to pay for what is being u
 |P3|General Purpose , Graphics Intensive|Bit coin, Machine Learning|
 |X1|Memory Optimized|SAP HANA, Apache Spark|
 
+Remember by **FIGHTDRMCPX**
+
 
