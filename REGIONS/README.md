@@ -23,6 +23,6 @@ ap-southeast-2 is a region. This has 3 availability zones.
 
 A region physically nearer will have relatively low latency.
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/REGIONS/Region_Basics.png" width="50%" height="50%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/REGIONS/Region_Basics.png" width="35%" height="35%"/>
   
 
