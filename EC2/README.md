@@ -184,8 +184,39 @@ echo "Hello World from $(hostname -f)" > /var/www/html/index.html
 + Users who suddenly need additional compute capacity
 + Spot instances are terminated by AWS if spot price for that capacity increases. However Amazon does not charge for partial usage of hour in that case. However, if instance is terminated by customer, then whole hour is charged for.
 + The spot price can fluctuate but it still provides large savings over on demand.
-
++ We can also get pricing history of spot instances and use it to set our max spot price.
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/SPOT_INSTANCE_PRICE_GRAPH.PNG"/>
+
+##### How to terminate spot instances
+Spot requests have certain attributes - max price, desired number of instances, launch spec, valid from, valid until, request type - one time or persistent.
++ One time requests will spawn instances and if those instances are killed, nothing will happen.
++ Persistent requests - If instances are stopped due to spot price going up, it will come back to spot request and is smart enough to restart those instances once spot price < max price.
+We can only cancel spot instance requests that are open, active or disabled.
++ Cancelling a spot request will not terminate instances it created, we have to kill them manually.
++ We have to first cancel the spot request and then terminate the instances else they will be created again.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/TERMINATE_SPOT_INSTANCES.PNG"/>
+
+##### SPOT Fleets
+
+It is a set of spot instances + (optional) on demand instances. The spot fleet tries it best to meet the target capacity with the price constraints defined.
+It will launch from possible launch pools. The launch pools have different instance type , different OS and different availability zones. We will define multiple launch pools and the spot fleet will chose the most appropriate or best launch pool. When it reaches budget or capacity, it will stop launching instances.
+
+##### Strategies to allocate Spot instances
++ lowest price - short workload, cost optimization
++ diversified - distributed across all pools - great for availability, long workloads, because if 1 pool goes away, other is still available.
++ capacity optimized - pool with optimal capacity for number of instances
+
+**SPOT FLEET ALLOWS US TO AUTOMATICALLY REQUEST SPOT INSTANCES WITH LOWEST PRICE**.
+
++ While creating SPOT instances, we are select different types of workloads.
+  + Load balancing workloads - webservices
+  + Flexible workloads - batch job
+  + Big data workloads
+  + Defined duration workloads(spot blocks)
++ We also have to mention target capacity to maintain
++ To create a single spot instance, we go to Configure Instance Details > Check request spot instance > Mention maximum spot price > persistent or not
+
 
 ##### Dedicated host
 + We get physically dedicated EC2 server for use which gives full control over instance placement.
@@ -193,6 +224,7 @@ echo "Hello World from $(hostname -f)" > /var/www/html/index.html
 + Used for regulatory requirement or to save licensing costs which do not allow multi tenant virtualization
 + Can be purchased on demand
 + Can be purchased as a reservation of 3 years which saves about 70% compared to on demand
++ Configured under Configure Instance Details > Tenancy
 
 ##### Dedicated Instances
 + Instances running on dedicated hardware or shared with instances in my account.
