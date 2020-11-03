@@ -83,6 +83,21 @@ Inbound traffic is allowed to I1 from I4 and I2.
 
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/SG_REFERENCED.PNG" width="80%" height="80%"/>
 
+#### Public vs Private vs Elastic IP
+
+Networking is of 2 sorts - IPv4 and IPv6. Both are supported by AWS.
++ IPV4 - 1.160.10.240. It is most common.It allows for 3.7 adresses in public space. The format is [0-255]:[0-255]:[0-255]:[0-255]
++ IPV6 - 3ffe:1900:4545:3:200:f8ff:fe21:67cf. It is mainly used for IOT.
+
++The **Public IPs** can talk to one another over internet. Machine with public ip can be identified on the internet. It is unique, no two machines can have same public ip. They can be geolocated easily.
++**Private IPs:** When a company has a private network, it has a private ip range. All computers in that private network can talk to each other using their private ip. But to talk to outside public ip, they will need a internet gateway which has a public ip. This is a common AWS pattern. Machines with private ip can be identified in private network only. They are only unique across private network. 2 different private networks can have same private ip. Machines with private ip connect to wwww using NAT + internet gateway(proxy). Only specified range of ips can be used as private ips.
++**So public ips are accessible all over the internet and private ips are only accessible in private network.**
++**Elastic IPs:** When we start and stop an EC2 instance, its public ip changes. If a fixed public ip is needed for our instance, we will need an elastic ip. It is a public ipv4 which we own as long as we do not delete it. We can atatch this elastic ip to one instance at a time. With an elastic ip, one can mask failures by quickly remapping it to another instance in their account. We can have **5 elastic ips in our account but this can be increased by asking AWS.**
++ It is recommended to avoid elastic ips. Instead 1) we can us a public ip and register dns name to it or 2) use a load balancer instead of a public ip.
++ By default, our EC2 instance comes with a private ip for internal AWS network and a public ip for www. SSH with public ip, not private ip. If instance is stopped and started, **public ip changes.**
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PUBLIC_VS_PRIVATE_IP.PNG" width="80%" height="80%"/>
+
 #### Types of Instances based on Pricing
 + On Demand - allows to pay by the hour or second(Linux is by second and Windows is by hour)
 + Reserved - Reservation for 1 or 3 years, certain or entire amount upfront, but large discount compared to on demand price.
