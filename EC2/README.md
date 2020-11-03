@@ -171,13 +171,21 @@ echo "Hello World from $(hostname -f)" > /var/www/html/index.html
   + Convertible RIs(upto 54% off on demand) - capability to change attribute of instance from say compute to memory intensive provided the exchange is of equal or greater value , expensive but flexible
   + Scheduled RIs - available to launch within a scheduled time window. It allows to obtain compute capacity within a certain recurring schedule. For example if a company has large sales during fridays, then it will go for RIs scheduled on every friday. Not available in all regions.
 
-##### Spot Instances
-+ 90% discount compared to on demand. But we can lose them at any point of time if current spot price goes over the max price
+##### EC2 Spot Instances
+
++ We define a max spot price which we are willing to pay and we get instance while **current spot price < max spot price**. The hourly spot price varies based on offer and capacity.It will go up and down. 
+  + Strategy 1 : If current spot price > max spot price, we can choose to stop or terminate within a 2 hour grace period. If we stop, we can continue when current spot price < max spot price again. 
+  + Strategy 2 : Spot block - block spot instance during a specified time (1 - 6 hours) without interruption. In rare situations , they are reclaimed by AWS.
+
++ 90% discount compared to on demand. But we can lose them at any point of time if current spot price goes over the max spot price
 + Applications with flexible start and end times which are feasible only at a very low cost. e.g. : Genomics and Pharma companies use this to perform research by running resource intensive apps on say a sunday at 4 am when price is very low.
 + They are very cost efficient for workloads which has resiliency to any kind of failure , for example, batch jobs ,image processing, data analysis and any jobs which can be retrieved.
 + They are not recommended for critical apps like databases.
 + Users who suddenly need additional compute capacity
 + Spot instances are terminated by AWS if spot price for that capacity increases. However Amazon does not charge for partial usage of hour in that case. However, if instance is terminated by customer, then whole hour is charged for.
++ The spot price can fluctuate but it still provides large savings over on demand.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/SPOT_INSTANCE_PRICE_GRAPH.PNG"/>
 
 ##### Dedicated host
 + We get physically dedicated EC2 server for use which gives full control over instance placement.
@@ -186,11 +194,15 @@ echo "Hello World from $(hostname -f)" > /var/www/html/index.html
 + Can be purchased on demand
 + Can be purchased as a reservation of 3 years which saves about 70% compared to on demand
 
-###### Dedicated Instances
+##### Dedicated Instances
 + Instances running on dedicated hardware or shared with instances in my account.
 + No control over instance placement. Can move hardware after stop / start.
 
-** A great combo is reserved instances for baseline capacity(webapps) , on demand for unpredictable work and spots for peaks.** This results in more agility and cost savings.  
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/DEDICATED_HOST_VS_INSTANCE.PNG" width="40%" height="40%"/>
+
+**A great combo is reserved instances for baseline capacity(webapps) , on demand for unpredictable work and spots for peaks.** This results in more agility and cost savings.  
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/INSTANCE_PRICE_COMPARISON.PNG" width="80%" height="80%"/>
 
 |Which host | When |
 |-----------|------|
@@ -198,11 +210,12 @@ echo "Hello World from $(hostname -f)" > /var/www/html/index.html
 |Reserved|Plan Ahead, use for a long time ,good discount|
 |Spot|Bid for unused instances on spot. Highest bidder keeps instances. Can lose any time|
 |Dedicated Host|Entire server|
+
 #### Types of instances based on hardware
 
 |Family|Speciality|Usecase|
 |------|----------|-------|
-|F1|Field gate programmable array|Genomic research, Video processing, Financial analytics, big data|
+||Field gate programmable array|Genomic research, Video processing, Financial analytics, big data|
 |I3|High Speed Storage|No SQL DB and Data Warehousing|
 |G3|Graphics Intensive|Video Encoding|
 |H1|High Disk throughput|Distributed file systems like HDFS and Map Reduce based workloads|
