@@ -247,19 +247,24 @@ It will launch from possible launch pools. The launch pools have different insta
 
 |Family|Speciality|Usecase|
 |------|----------|-------|
-||Field gate programmable array|Genomic research, Video processing, Financial analytics, big data|
-|I3|High Speed Storage|No SQL DB and Data Warehousing|
-|G3|Graphics Intensive|Video Encoding|
-|H1|High Disk throughput|Distributed file systems like HDFS and Map Reduce based workloads|
-|T2|Lowest Cost General Purpose| Web Server, Small DBs|
-|D2|Dense Storage|File Servers, Data Warehouse, Hadoop|
-|R4|Memory Optimized|Memory Intensive Apps, DB|
-|M5|General Purpose|Application Servers|
-|C5|Compute Ompimized|CPU Intensive Apps/DBs|
-|P3|General Purpose , Graphics Intensive|Bit coin, Machine Learning|
-|X1|Memory Optimized|SAP HANA, Apache Spark|
+|R - RAM|lot of memory|In memory cache|
+|C - CPU|high CPU|compute or databases|
+|M - in the middle|Balanced Apps|General Webapps|
+|I - Good IO|Apps that need good local IO(Instance storage)|Databases|
+|G - GPU|Apps needing high GPU|Video Rendering/Machine Learning|
+|T2/T3 - Burstable|Burstable up to a capacity|Burst for a short while|
+|T2/T3 - Unlimited|Unlimted Burst||
 
-Remember by **FIGHT DR MCPX**
+**https://www.ec2instances.info**
+
+**Burstable Instances(T2/T3)** - Overall these instances have ok cpu performance. But when there is an unexpected spike in load, CPU can burst.
+If the instance bursts, it utilizes "burst credits". If credit is exhausted, cpu cannot burst any more. If the instance stops bursting, then burst credits are accumulated again. If the instance is always running low on burst credits, then we may need to move to a non burstable instance.
+We can see credit usage(goes up during a spike) and credit balance(goes down during a spike) in cloud watch. The larger the instance, the faster credits are earned.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/CPU_CREDIT_T2T3.PNG" width="60%" height="60%"/>
+
+**Unlimited T2/T3 :** They have unlimited burst credit balance, but we pay extra money for burst credits over standard burst credit balance. But there is no loss in performance.
+
 
 #### EBS(Elastic block storage)
 
