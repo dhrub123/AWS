@@ -74,6 +74,15 @@ The security groups act as a firewall and regulate
 + It is recommended to maintain a separate security group for SSH access.
 + **By default all inbound traffic is blocked and all outbound traffic is allowed**
 
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/SG_2.PNG" width="80%" height="80%"/>
+
+#### Referencing other security groups:
+Security groups can refer other security groups, ip adresses, cidr blocks but **not DNS names**.
+If we have a security group 1 which authorizes inbound traffic from security group 1 and security group 2, then that helps us in the following way. Suppose there are 4 instances. I1 has SG1 attached. I2 has SG2 attached. I3 has SG3 attached. I4 has SG1 attached. So inbound traffic is allowed to I4 from I1 and I2.
+Inbound traffic is allowed to I1 from I4 and I2. 
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/SG_REFERENCED.PNG" width="80%" height="80%"/>
+
 #### Types of Instances based on Pricing
 + On Demand - allows to pay by the hour or second(Linux is by second and Windows is by hour)
 + Reserved - Reservation for 1 or 3 years, certain or entire amount upfront, but large discount compared to on demand price.
