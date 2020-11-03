@@ -41,12 +41,38 @@ Use Putty.
 #### SSH using Windows 10
 
 + Go to .pem properties > security > advanced > make yourself owner - disable inheritance and remove other owners > Give yourself full control
-+ Use Powershell sh ec2-user@35.180.100.144 -i ec2.pem
++ Use Powershell ssh ec2-user@35.180.100.144 -i ec2.pem
 
 #### Common issues during SSH
 
 + connection timeout - issue is related to security groups and firewall
-+ conenction refused - ssh utility not running or application error - restart or create new instance
++ connection refused - ssh utility not running or application error - restart or create new instance
+
+#### Security Groups
+
+Security groups form the fundamental of network security in aws. They control how traffic is allowed into and out of EC2 machines. They can be used to allow inbound and outbound ports.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/SG_1.PNG" width="60%" height="60%"/>
+
+Network Security > Security Groups : 
+
+They have inbound and outbound tabs. In inbound, by default there is no rule, nothing is allowed. We have to add a rule. If no rule is added, timeout will happen if we try to ssh into instance. In outbound tab, all traffic out of the instance is enabled by default. Each rule has 5 things :
++ Type - SSH/HTTP
++ Protocol - TCP
++ Port Range - 22
++ Source - Custom 0.0.0.0/0
++ Description
+
+The security groups act as a firewall and regulate
++ access to ports
++ authorised ip ranges
++ control of inbound network ( from other to instance) 
++ control of outbound network ( from instance to other)
++ **security groups can be attached to multiple instances and one instance can have multiple security groups**
++ security groups are locked down to vpc/region combination - They have to be created in a different region or a different vpc.
++ They live outside EC2. When they block traffic, EC2 is not even aware of the blocked traffic.
++ It is recommended to maintain a separate security group for SSH access.
++ **By default all inbound traffic is blocked and all outbound traffic is allowed**
 
 #### Types of Instances based on Pricing
 + On Demand - allows to pay by the hour or second(Linux is by second and Windows is by hour)
