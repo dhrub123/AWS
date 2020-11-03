@@ -17,7 +17,7 @@ ap-southeast-2 is a region. This has 3 availability zones.
 + ap-southeast-2b
 + ap-southeast-2c
 + The letters a,b,c,d,e and f at the end represent availability zones.
-+ Each availability zone is made up of one or more discreet data centers with redundant power, networking and connectivity.
++ Each availability zone is made up of one or more discreet and isolated data centers with redundant power, networking and connectivity.
 + They are seperated from one another and thus isolated from disaster.
 + They are connected with high bandwidth, ultra low latency networking.
 
