@@ -89,14 +89,58 @@ Networking is of 2 sorts - IPv4 and IPv6. Both are supported by AWS.
 + IPV4 - 1.160.10.240. It is most common.It allows for 3.7 adresses in public space. The format is [0-255]:[0-255]:[0-255]:[0-255]
 + IPV6 - 3ffe:1900:4545:3:200:f8ff:fe21:67cf. It is mainly used for IOT.
 
-+The **Public IPs** can talk to one another over internet. Machine with public ip can be identified on the internet. It is unique, no two machines can have same public ip. They can be geolocated easily.
-+**Private IPs:** When a company has a private network, it has a private ip range. All computers in that private network can talk to each other using their private ip. But to talk to outside public ip, they will need a internet gateway which has a public ip. This is a common AWS pattern. Machines with private ip can be identified in private network only. They are only unique across private network. 2 different private networks can have same private ip. Machines with private ip connect to wwww using NAT + internet gateway(proxy). Only specified range of ips can be used as private ips.
-+**So public ips are accessible all over the internet and private ips are only accessible in private network.**
-+**Elastic IPs:** When we start and stop an EC2 instance, its public ip changes. If a fixed public ip is needed for our instance, we will need an elastic ip. It is a public ipv4 which we own as long as we do not delete it. We can atatch this elastic ip to one instance at a time. With an elastic ip, one can mask failures by quickly remapping it to another instance in their account. We can have **5 elastic ips in our account but this can be increased by asking AWS.**
++ The **Public IPs** can talk to one another over internet. Machine with public ip can be identified on the internet. It is unique, no two machines can have same public ip. They can be geolocated easily.
++ **Private IPs:** When a company has a private network, it has a private ip range. All computers in that private network can talk to each other using their private ip. But to talk to outside public ip, they will need a internet gateway which has a public ip. This is a common AWS pattern. Machines with private ip can be identified in private network only. They are only unique across private network. 2 different private networks can have same private ip. Machines with private ip connect to wwww using NAT + internet gateway(proxy). Only specified range of ips can be used as private ips.
++ **So public ips are accessible all over the internet and private ips are only accessible in private network.**
++ **Elastic IPs:** When we start and stop an EC2 instance, its public ip changes. If a fixed public ip is needed for our instance, we will need an elastic ip. It is a public ipv4 which we own as long as we do not delete it. We can atatch this elastic ip to one instance at a time. With an elastic ip, one can mask failures by quickly remapping it to another instance in their account. We can have **5 elastic ips in our account but this can be increased by asking AWS.**
 + It is recommended to avoid elastic ips. Instead 1) we can us a public ip and register dns name to it or 2) use a load balancer instead of a public ip.
 + By default, our EC2 instance comes with a private ip for internal AWS network and a public ip for www. SSH with public ip, not private ip. If instance is stopped and started, **public ip changes.**
++ If we ssh into instance using public ip , we will see a prompt ec2-user@<private-ip> which means that the ec2 machine is identified by the private ip in aws network. If we do ifconfig -a, eth0 or the virtual ethernet interface will also give us the private ip as inet.
++ Now, if we stop the instance, the public ip will disappear and if we start again ,the public ip will be different. But the **private ip is still the same**.
++ If we want to persist ips between restarts, go to network and security > Elastic ip > Allocate elastic ip from Amazon's pool of IPV4 adresses or bring in your own pool. > Allocate
++ Then associate elastic ip to ec2 instance. Now if we start and stop, public ip is retained as it is an elastic ip. **Elastic IPs get charged for when not associated with an EC2 instance**
+  
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PUBLIC_VS_PRIVATE_IP.PNG" width="60%" height="60%"/>
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PUBLIC_VS_PRIVATE_IP.PNG" width="80%" height="80%"/>
+#### Install apache on EC2.
+```
+# 1) ssh to instance
+ssh ec2-user@35.180.100.144 -i ec2.pem
+# 2) Elevate to super user
+sudo su
+# 3) Update without prompting
+yum update -y
+# 4) Install apache
+yum install -y httpd.x86_64
+# 5) Start apache service
+systemctl start httpd.service
+# 6) enable across reboots
+systemctl enable httpd.service
+# 8) curl -> we should see page content
+curl localhost:80
+# 9) create index.html. If we do a http://<public_ip>:80 , we will see a page displaying hello world. Please note that we need to add HTTP inbound port 80 rule in # sg for instance.
+echo "Hello World" > /var/www/html/index.html
+# 10) create index.html. If we do a http://<public_ip>:80 , we will see a page displaying hello world from <private ip>
+echo "Hello World from $(hostname -f)" > /var/www/html/index.html
+```
+
+#### EC2 User Data :
++ This is used to boot strap instance with user data script. Bootstrapping means launching commands when instance starts.
++ The script is run only once at the first start of instance.
++ It is mainly used to automate boot tasks like installing updates, software, downloading files etc. 
++ The larger the user data script, the more it does, the larger the bootup time. It is run with root user sudo rights.
++ Configure Instance Details > Advanced Details > User Data - The script gets encoded to base 64.
+
+```
+#!/bin/bash
+sudo su #admin privileges
+#install httpd(Linux 2 version)
+yum update -y
+yum install -y httpd.x86_64
+systemctl start httpd.service
+systemctl enable httpd.service
+echo "Hello World from $(hostname -f)" > /var/www/html/index.html
+```
 
 #### Types of Instances based on Pricing
 + On Demand - allows to pay by the hour or second(Linux is by second and Windows is by hour)
