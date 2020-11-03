@@ -143,33 +143,61 @@ echo "Hello World from $(hostname -f)" > /var/www/html/index.html
 ```
 
 #### Types of Instances based on Pricing
-+ On Demand - allows to pay by the hour or second(Linux is by second and Windows is by hour)
-+ Reserved - Reservation for 1 or 3 years, certain or entire amount upfront, but large discount compared to on demand price.
-+ Spot - enables to bid a price for instance capacity, if application has flexible timings, this can lead to significant savings.
-+ Dedicated host - These are physical ec2 server dedicated for use. They allow to bring exisitng server-bound software licenses over to aws and thus save costs.
++ On Demand - allows to pay by the hour or second(Linux is by second and Windows is by hour) - For short workload, predictable pricing
++ Reserved - Reservation for 1 or 3 years, certain or entire amount upfront, but large discount compared to on demand price. These are ideal when the amount of time is known beforehand. for example say 1 year for a database. They are for long workloads.
+  + Convertible Reserved Instances : long worload with flexible instance types. m4xlarge today, c5xlarge tomorrow.
+  + Scheduled Reserved Instances : say every thursday between 3 am and 5 am (run a job for a year at a certain time).
++ Spot - enables to bid a price for instance capacity, if application has flexible timings, this can lead to significant savings. They are less reliable because we can lose these instances. These are very cheap and are for short workloads.
++ Dedicated host - These are physical ec2 server dedicated for use. They allow to bring exisitng server-bound software licenses over to aws and thus save costs. They allow us to control instance placement.
++ Dedicated instance - No other customer will share hardware on AWS.
 
 ##### On Demand Instances
++ Billing per second after the first minute
++ Pay for what we use
++ highest cost but no long term commitment
 + Perfect for users who want low cost and flexibility of AWS EC2 without any long term commitment or contract
-+ Applications with Unpredictable workloads that cannot be interrupted
++ Applications with unpredictable and short workloads (elastic workloads) that cannot be interrupted
 + Development and testing
 
 ##### Reserved Instances
-+ Applications with steady state or predictable usage that require reserved capacity
++ Traditional IT
++ Upro 75% discount compared to on demand
++ upfront payment with long term commitment
++ Reserved for 1 or 3 years
++ We can reserve a specific instance type
++ Recommended for applications with steady state or predictable usage that require reserved capacity
 + Users willing to make upfront payment to reduce computing cost even further
   + Standard RIs(upto 75% off on demand) - if entire payment is made upfront and contract is for 3 years
-  + Convertible RIs(upto 54% off on demand) - capability to change attribute of instance from say compute to memory intensive provided the     exchange is of equal or greater value 
-  + Scheduled RIs - available to launch within a scheduled time window. It allows to obtain compute capacity within a certain recurring     schedule. For example if a company has large sales during fridays, then it will go for RIs scheduled on every friday.
+  + Convertible RIs(upto 54% off on demand) - capability to change attribute of instance from say compute to memory intensive provided the exchange is of equal or greater value , expensive but flexible
+  + Scheduled RIs - available to launch within a scheduled time window. It allows to obtain compute capacity within a certain recurring schedule. For example if a company has large sales during fridays, then it will go for RIs scheduled on every friday. Not available in all regions.
 
 ##### Spot Instances
++ 90% discount compared to on demand. But we can lose them at any point of time if current spot price goes over the max price
 + Applications with flexible start and end times which are feasible only at a very low cost. e.g. : Genomics and Pharma companies use this to perform research by running resource intensive apps on say a sunday at 4 am when price is very low.
++ They are very cost efficient for workloads which has resiliency to any kind of failure , for example, batch jobs ,image processing, data analysis and any jobs which can be retrieved.
++ They are not recommended for critical apps like databases.
 + Users who suddenly need additional compute capacity
 + Spot instances are terminated by AWS if spot price for that capacity increases. However Amazon does not charge for partial usage of hour in that case. However, if instance is terminated by customer, then whole hour is charged for.
 
 ##### Dedicated host
++ We get physically dedicated EC2 server for use which gives full control over instance placement.
++ It gives visibility to physical cores/ sockets of hardware and is great for licensing purposes - BYOL(Bring your own license).
 + Used for regulatory requirement or to save licensing costs which do not allow multi tenant virtualization
 + Can be purchased on demand
-+ Can be purchased as a reservation which saves about 70% compared to on demand
++ Can be purchased as a reservation of 3 years which saves about 70% compared to on demand
 
+###### Dedicated Instances
++ Instances running on dedicated hardware or shared with instances in my account.
++ No control over instance placement. Can move hardware after stop / start.
+
+** A great combo is reserved instances for baseline capacity(webapps) , on demand for unpredictable work and spots for peaks.** This results in more agility and cost savings.  
+
+|Which host | When |
+|-----------|------|
+|On Demand|Pay Full Price|
+|Reserved|Plan Ahead, use for a long time ,good discount|
+|Spot|Bid for unused instances on spot. Highest bidder keeps instances. Can lose any time|
+|Dedicated Host|Entire server|
 #### Types of instances based on hardware
 
 |Family|Speciality|Usecase|
