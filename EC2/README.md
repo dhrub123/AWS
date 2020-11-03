@@ -253,7 +253,7 @@ It will launch from possible launch pools. The launch pools have different insta
 |I - Good IO|Apps that need good local IO(Instance storage)|Databases|
 |G - GPU|Apps needing high GPU|Video Rendering/Machine Learning|
 |T2/T3 - Burstable|Burstable up to a capacity|Burst for a short while|
-|T2/T3 - Unlimited|Unlimted Burst||
+|T2/T3 - Unlimited|Unlimited Burst||
 
 **https://www.ec2instances.info**
 
@@ -265,10 +265,35 @@ We can see credit usage(goes up during a spike) and credit balance(goes down dur
 
 **Unlimited T2/T3 :** They have unlimited burst credit balance, but we pay extra money for burst credits over standard burst credit balance. But there is no loss in performance.
 
+#### AMIS
+
+AWS comes with a lot of base images like Ubuntu, Fedora, Redhat, Windows and even Amazon Linux Image. They can be customized at runtime using EC2 user data or we can ssh into the instance and do whatever we want. But we can also create our own image which we can use to launch instances. They can be created for windows or linux instances.
+
+Custom AMIs have a lot of advantages:
++ Preinstalled packages
++ Faster boot time( no need for EC2 user data)
++ Can be configured with Enterprise and Monitoring software
++ Security concerns - may need more control over instances in network
++ Control of Maintenance and updates
++ Active directory integration out of the box
++ Install app ahead of time for faster deployment during autoscaling
++ Using some one else's ami optimized for running specific apps , db etc. 
++ **AMIs are specific to AWS region. They are not global.**
++ We can use public AMI from other people.
++ We can rent AMI by the hour at Amazon Marketplace.
++ Do not use untrusted AMIs because they may have malware and are not secure for enterprises.
+
+**AMI Storage :** 
++ AMIs live in Amazon S3 which is a cheap, durable and resilient storage where most of our backups will stay. 
++ But we will not see them in S3 console. 
++ AMIs are private and locked to AWS region/account by default.
++ We can make AMIs public and share them with other people or sell them in AMI marketplace. 
++ **AMI Pricing:** They live in Amazon S3, so we are charged for the space they take in amazon S3 which is quite inexpensive.
+  + It is encouraged to store private AMIs and remove old ones which are not used.
 
 #### EBS(Elastic block storage)
 
-This is a virtual disk just like EC2 is a virtual machine.  It allows to create storgae volumes and then add to EC2 instance. Once attached we can create a file system , run a database etc. They are placed in a psecific availability zone and are automatically replicated to protect from failure.
+This is a virtual disk just like EC2 is a virtual machine.  It allows to create storgae volumes and then add to EC2 instance. Once attached we can create a file system , run a database etc. They are placed in a secific availability zone and are automatically replicated to protect from failure.
 
 ##### SSDs
 + General Purpose SSD(GP2) - 
