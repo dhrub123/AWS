@@ -1,7 +1,52 @@
 ## EC2
-Amazon EC2(Elastic Compute Cloud) is a webservice that provides resizable compute capacity in cloud. It reduces the time required to obtain and boot new server instances to minutes, allowing to quicly scale capacity both upwards and downwards based on changing computing requirements.
+Amazon EC2(Elastic Compute Cloud) is a webservice that provides resizable compute capacity in cloud. It reduces the time required to obtain and boot new server instances to minutes, allowing to quickly scale capacity both upwards and downwards based on changing computing requirements.
 
 It has changed the economics of computing by allowing to pay for what is being used. It provides the tools needed to build a failure resistent application.
+It gives us the capability to 
++ rent virtual machines(EC2) in cloud
++ store data on virtual drives (EFS)
++ distribute load across machines (ELB)
++ scale services using autoscaling group (ASG)
+
+EC2 > launch instance > choose an AMI(Amazon Machine Image) - software or operating system that will be launched on the virtual machine. We can use Amazon Linux 2 AMI. It is free tier eligible. > Then we have to selct type of machine( t2.micro - free tier eligible). The type of machine is determined by how many vcpus , how much memory and many other parameters like these. > Then we configure instance details - use default vpc and subnet( subnet is the availability zone we want to launch instance in) , define shutdown behavior > Then we have to define storage - When we start the instance up , it has to store its os somewhere, that is the disk EBS volume(8gb, ssd). We delete on termination. We can also add tags to describe the instance. If we use a Name tag, the value show up in UI under instance name. > Then we configure security group (firewall around the instance) - we create a new security group and allow ssh , define source as 0.0.0.0/0(which means from anywhere) > Then launch. We can create a key pair to ssh to instance. We have to download the .pem file and then click launch instance.
+
+Once the instance is in running state, billing will start. We can stop the instance to stop billing. Rebooting the instance will start billing. Terminate will **discard instance and delete data**. **Billing only happens when instance is in running state**.
+
+#### SSH overview 
+
+|OS|SSH|Putty|Instance Connect|
+|--|---|-----|----------------|
+|Mac|X||X|
+|Linux|X|X|X|
+|Windows < 10||X|X|
+|Windows 10|X|X|X|
+
+**EC2 instance connect** allows to connect to AWS instance directly from browser. Instance > Connect > EC2 Instance Connect. Aws will upload key to instance to access it temporarily. The port 22 inbound rule for SSH needs to be enabled in security group associated with instance for this. It only works for Amazon Linux 2 AMI.
+
+#### SSH using LINUX/MAC
+It allows us to control the remote EC2 machine from command line, through the port 22 allowed during security group configuration of instance.
+|Command|Result|
+|-------|------|
+|ssh ec2-user@35.180.100.144|Permission denied because we did not provide a pem file|
+|ssh ec2-user@35.180.100.144 -i ec2.pem|Permission 0644 for pem too open - bad Permission|
+|chmod 400 ec2.pem and then ssh ec2-user@35.180.100.144 -i ec2.pem Then if we do whoami , we will get ec2-user|Logged in|
+|exit|exit or ctrl+d|
+
+#### SSH using windows < 10
+
+Use Putty.
++ Use Puttygen to convert .pem to .ppk file.
++ In Putty in hostname field, input ec2-user@35.180.100.144 and under connection > SSH > auth > browse > load ppk file , then login.
+
+#### SSH using Windows 10
+
++ Go to .pem properties > security > advanced > make yourself owner - disable inheritance and remove other owners > Give yourself full control
++ Use Powershell sh ec2-user@35.180.100.144 -i ec2.pem
+
+#### Common issues during SSH
+
++ connection timeout - issue is related to security groups and firewall
++ conenction refused - ssh utility not running or application error - restart or create new instance
 
 #### Types of Instances based on Pricing
 + On Demand - allows to pay by the hour or second(Linux is by second and Windows is by hour)
