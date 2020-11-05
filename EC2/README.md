@@ -291,6 +291,10 @@ Custom AMIs have a lot of advantages:
 + **AMI Pricing:** They live in Amazon S3, so we are charged for the space they take in amazon S3 which is quite inexpensive.
   + It is encouraged to store private AMIs and remove old ones which are not used.
 
+#### ENI 
+
+https://aws.amazon.com/blogs/aws/new-elastic-network-interfaces-in-the-virtual-private-cloud/
+
 #### EBS(Elastic block storage)
 
 This is a virtual disk just like EC2 is a virtual machine.  It allows to create storgae volumes and then add to EC2 instance. Once attached we can create a file system , run a database etc. They are placed in a secific availability zone and are automatically replicated to protect from failure.
