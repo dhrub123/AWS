@@ -44,10 +44,23 @@ They are crucial for load balancers because through them load balancers get to k
 
 #### Types of managed Load Balancers:
 There are 3 types of load balancers.
-+ Classic load balancer(v1 - old generation - 2009) - http, https, tcp
-+ Application load balancer(v2 - new generation - 2016) - http, https, websocket
-+ Network Load balancer(v2 - new generation - 2017) - tcp, tls(secure tcp) and udp
-It is recommended to use newer load balances since they have more features. We can setup internal(private - not accessible from public web) and external(public) ELBs.
++ **Classic load balancer(v1 - old generation - 2009)** 
+  + They support TCP(Layer 4) , HTTP and HTTPS(Layer 7)
+  + Healthchecks are TCP or HTTP based.
+  + We get a fixed hostname - XXX.region.elb.amazonaws.com
+  + We go to Load Balancers > Create a load balancer > we have 3 choices but we will select classic and click create > Give name , select VPC, internal or 
+    external, listener configuration - our ELB is going to listen to port 80(load balancer port) on HTTP and backtalk with instances on port 80(instance port). 
+    > assign security group - create new security group , give name and inbound rule is allow port 80 from anyone > configure health check - ping protocol is
+    http, ping port is 80 and ping path is /index.html , then response timeout(5 sec), interval(10 sec), unhealthy threshold(2) and healthy threshold(5) - after
+    how many healthy pings, instance can be considered healthy> Add EC2 instances > Create. Now under instance in the load balancer, we can see the instance with
+    a status of inService(means it is passing health check). Now if we give the DNS name of the ELB in browser, we can see the response from EC2. But if we give 
+    ip adress of EC2 in browser, we will also get a response. So the security group of ec2 is too open. So we will modify the inbound http rule of ec2 and in
+    source mention the security group of load balancer to limit incoming http traffic only from loadbalancer. We can have our instances in different availability
+    zones.
+  + <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/CLB.png" width="60%" height="60%"/>
++ **Application load balancer(v2 - new generation - 2016)** - http, https, websocket
++ **Network Load balancer(v2 - new generation - 2017)** - tcp, tls(secure tcp) and udp
+It is recommended to use newer load balancers since they have more features. We can setup internal(private - not accessible from public web) and external(public) ELBs.
 
 #### Load Balancer security group:
 Users will access ELB from anywhere using http or https. So the inbound rule in load balancer security group should be traffic from 0.0.0.0/0(anywhere) on port 80 and 443. But the downstream EC2 instances should only recieve only HTTP traffic from only ELB. So the application security group will reference ELB security group which will in turn enable HTTP traffic on port 80 from ELB security group.
