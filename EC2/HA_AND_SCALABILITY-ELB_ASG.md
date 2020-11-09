@@ -58,7 +58,36 @@ There are 3 types of load balancers.
     source mention the security group of load balancer to limit incoming http traffic only from loadbalancer. We can have our instances in different availability
     zones.
   + <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/CLB.png" width="60%" height="60%"/>
-+ **Application load balancer(v2 - new generation - 2016)** - http, https, websocket
++ **Application load balancer(v2 - new generation - 2016)** 
+  + They support http, https, websocket(layer 7 only)
+  + They allow to route to multiple http applications across machines and these machines are grouped into target groups
+  + They allow to load balance multiple application within same instance for example containers
+  + Support redirect from http to https
+  + Routing tables to different target groups.
+    + Routing based on path in URL (example.com/users amd example.com/posts). /users and /posts are different paths.
+    + Routing based on hostname in URL(example.com and other.example.com)
+    + Routing based on query strings and headers (example.com/users?id=123&order=false)
+  + ALB are great for microservices and container based apps(Docker and Amazon ECS). This is because they have port mapping features to redirect to dynamic port
+  in ECS.In comparsion we will need multiple classic loadbalancers for this.
+  + Application load balancer(V2) target groups
+    + EC2 instances , can be managed by an auto scaling group - HTTP
+    + ECS tasks - HTTP
+    + Lambda Functions - HTTP request is translated into a JSON event.
+    + IP Adresses - must be private ips
+    + ALB can route to multiple target groups and the healthchecks can be defined at target group level.
+  + Fixed hostname - XXX.region.elb.amazonaws.com
+  + The application servers do not see the IP of the client directly
+    + The true ip of the client is inserted in the header X-Forwarded-For, the port in X-Forwarded-Port and the protocol in X-Forwarded-Proto 
+    <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ALB_1.png" width="60%" height="60%"/>
+  + We select Application load balancer > Give name, scheme is internet-facing and ip adress type is IPV4. > Listeners - HTTP on port 80 > Availability zones -
+  select VPC and appropriate availability zones. > Security groups - Use the earlier ELB security group > Target Group - Give name and choose target type from
+  Instance, IP or Lambda Function, Protocol is HTTP and port is 80, Healthcheck Protocol is HTTP and path is / and usual paremters like Healthy Threshold,
+  Unhealthy Threshold, TImeout, Interval ans success code is 200 > Register targets - register instances as targets. We can create multiple target groups and add
+  them in ALB > Listeners > View/Edit rules(Here we can add many rules like for particular path, route to specific target group or maybe for particular path
+  return a fixed message.
+    + <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ALB_RULES.png" width="60%" height="60%"/>
+  + <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ALB.png" width="60%" height="60%"/>
+  
 + **Network Load balancer(v2 - new generation - 2017)** - tcp, tls(secure tcp) and udp
 It is recommended to use newer load balancers since they have more features. We can setup internal(private - not accessible from public web) and external(public) ELBs.
 
