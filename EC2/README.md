@@ -317,13 +317,26 @@ We can circumvent this by launching an instance from the AMI and then creating a
 
 We use placement groups when we want to control how EC2 instances are placed in AWS infrastructure. That strategy can be defined using placement groups. We cannot directly interact with hardware in AWS but we can let AWS know how we would like to place the instances relative to one another. When we create a placement group, we can have 3 strategies. 
   + Cluster(High performance, high risk) - cluster instances are placed in a low latency group in a single availability zone.
-  + Spread - instances spread across different hardware ( restrictions : **max 7 instances per group per AZ** ) . They are used for critical applications.
+  + Spread - instances spread across different hardware ( restrictions : **max 7 instances per group per AZ** ). They are used for critical applications.
   + Patition - similar to spread in the sense that instances are spread across partitions(different racks of hardware within an availability zone). It scales to hundreds of instances per group. They are used for Hadoop, Cassandra and Kafka. They are not isolated from failure totally but are isolated from partition failure.
   
 ##### Cluster placement group:
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PG_CLUSTER.png" width="80%" height="80%"/>
+All EC2 instances are on same rack(same hardware) in same availability zone. 
++ PROS: low latency and great networking(10 GBps bandwidth between instances).
++ CONS: If the rack fails, all EC2 instances fail at the same time, so we have increased risk of failure across stack. 
++ This is typically used for Big data jobs and low latency high throughput applications.
 
- 
- 
+##### Spread placement group:
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PG_SPREAD.png" width="80%" height="80%"/>
+Spread is the opposite of cluster. Here risk is minimized. All EC2 instances are located in different hardware in different availability zones. So if one AZ fails, others will still be up and running. But we are limited to 7 instances per AZ per placement group. This cannot be used for very big applications. It is used for applications that need to maximize high availability - critical applications.
+
+##### Partition placement group:
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PG_PARTITION.png" width="80%" height="80%"/>
+Within an availability zone, we have different partitions(set of racks). We can create upto 7 patitions in a partition placement group. Each partition can have multiple EC2 instances. So even if one rack fails, other partitions will be up.
+
+Network And Security > Placement Group > Name and Strategy(cluster, spread or partition). Then launch an instance > Configure Instance Details > Add instance to placement group > If placement strategy is partition, we can select partition value or auto distribution( AWS will  equalize instances). The clsuter strategy is not available for T2, it is only available for high performance instances.
+
 #### ENI 
 
 https://aws.amazon.com/blogs/aws/new-elastic-network-interfaces-in-the-virtual-private-cloud/
