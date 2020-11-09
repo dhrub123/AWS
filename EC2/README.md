@@ -291,6 +291,28 @@ Custom AMIs have a lot of advantages:
 + **AMI Pricing:** They live in Amazon S3, so we are charged for the space they take in amazon S3 which is quite inexpensive.
   + It is encouraged to store private AMIs and remove old ones which are not used.
 
+##### Copying AMIS:
+We start an instance from an Amazon Linux AMI and install Apache. Right click on instance > Image > Create Image  > Give name and description > **We have to take the root volume of instance and create a backup because this is where we have installed apache.** We can now copy the image to other regions or modify its permissions to allow other people to see it. 
++ We can launch an instance out of the AMI. The root volume is coming from the snapshot.
++ We can deregister the AMi if we want to delete it.
++ **AMIs are region locked, if copied to another region, they cannot have same id.**
++ https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/CopyingAMIs.html
+
+##### Cross Account AMI copy:
+We can share an AMi with another account but that does not affect the ownership of the AMI. If we copy an AMI which has been shared with our account, we become the owner of the copied target AMI. So it does not prevent copying.
++ To copy an AMI that has been shared with us from another account, the owner of the source AMI must grant us read permissions for the storage that backs the AMI.
+  + It can be an EBS snapshot for an EBS backed AMI.
+  + it can be a S3 bucket for an instance store backed AMI.
+We can circumvent this by launching an instance from the AMI and then creating an AMi out of that instance.
+
++ **Limits in AMI copying:**
+  + We cannot copy an encrypted AMI that is shared with us unless the underlying snapshot and encryption key is shared with us. If they are shared, we can copy the snapshot and reencrypt it with a key of our own. We own the copied snapshot and can register it as an AMI.
+  + We cannot copy an AMI with an associated billing product code that was shared with us from another account. This includes windows AMIs and AMIs from Amazon marketplace. To copy a shared AMI with an associated product billing code, we have to launch an instance from that AMI and then create an AMI from that instance.
++ **Sharing an AMI**
+ + Modify image permissions - 1) public or 2) private ( In this case we have to provide AWS account numbers, we have to share AMI with)
+ + Check the checkbox which says Add create volume permissions. This allows to copy AMIs.
+ 
+ 
 #### ENI 
 
 https://aws.amazon.com/blogs/aws/new-elastic-network-interfaces-in-the-virtual-private-cloud/
