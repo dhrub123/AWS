@@ -354,6 +354,38 @@ Network And Security > Network Interfaces - We can create our own ENI > Here we 
 We can attach this ENI to an instance. We can also detach the ENI and attach it to another instance. **So one EC2 can have multiple ENIs**. but only 1 ENI can be used with 1 EC2instance. Also even if an EC2 instance has 2 ENIs attached, **it can have only 1 public ip** and **the ENI and EC2 instance must be in same subnet(availability zone)**.
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/MULTIPLE_ENI.png" width="50%" height="50%"/>
 
+#### EC2 Hibernate
+
+We can stop or restart EC2 instances. STOP - data on disk(EBS volume) kept intact for next start. RESTART - any data on EBS volume lost. 
+On START: OS boots and EC2 user data script is run. On REBOOT: OS boots, application starts, cache warmed up . All of this takes time. Hence EC2 hibernate has been introduced where in memory RAM state is preserved. So on RESTART, instance boot is much faster since OS in not stopped. Under the Hood, RAM state is written to a file in root EBS volume and the root EBS volume must be encrypted. Use cases: Long running processing, save ram state, services with large initialization time. More at https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html 
+
++ C3, C4, C4, M3, M4, M5, R3, R4, R5 supported
++ Ram size must be less than 150 GB
++ Not supported for bare metal instances
++ AMI: Amazon Linux2. LINUX ami, UBINTU, WINDOWS
++ Only on demand and reserved instances supported, not spot instances
++ Instances cannot be hibernated for more than 60 days
++ Root volume must be EBS abd not instance store and must be encrypted and large enough to support full RAM size dump
+
+Configure Instance Details > Stop > Stop - Hibernate Behavior > Enable Hibernation > Encrypt EBS volume(mandatory). We can now right click on instance > stop - hibernate. If we start again, the uptime fori nstance will include the uptime the instance was running for previously.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/EC2_HIBERNATE.png" width="50%" height="50%"/>
+
+#### Solution architecture:
+
++ EC2 instances are billed by the second
++ T2.micro is free tier
++ On linux/max/win 10 - ssh and on windows - putty
++ SSH on port 22, lock down security group to your ip
++ Timeout issues are for security group misconfiguration
++ A Security group can reference other secutity groups apart from ip ranges.
++ Permission issue on key - run chmod 400 on key
++ EC2 can be customized using EC2 user data bootstrap script
++ 4 launch modes - On Demand(billed by second), Reserved(long term, big discount), Dedicated(Access to actual hosts, BYOL) and Spot(unused capacity by AWS, cheap, bid on them and can be lost anytime. These are for workloads which can be resumed later and stopped midway)
++ Basic Instances - R, M, I, C, G, T2/T3
++ EC2 instances can be started in placement groups - cluster, spread and partition
++ Create AMIs to preinstall software on EC2 - faster boot time. AMIs are region scoped but can be copied across regions or accounts
+
 #### EBS(Elastic block storage)
 
 This is a virtual disk just like EC2 is a virtual machine.  It allows to create storgae volumes and then add to EC2 instance. Once attached we can create a file system , run a database etc. They are placed in a secific availability zone and are automatically replicated to protect from failure.
