@@ -52,7 +52,7 @@ Use Putty.
 
 Security groups form the fundamental of network security in aws. They control how traffic is allowed into and out of EC2 machines. They can be used to allow inbound and outbound ports.
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/SG_1.PNG" width="60%" height="60%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SG_1.PNG" width="60%" height="60%"/>
 
 Network Security > Security Groups : 
 
@@ -74,14 +74,14 @@ The security groups act as a firewall and regulate
 + It is recommended to maintain a separate security group for SSH access.
 + **By default all inbound traffic is blocked and all outbound traffic is allowed**
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/SG_2.PNG" width="80%" height="80%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SG_2.PNG" width="80%" height="80%"/>
 
 #### Referencing other security groups:
 Security groups can refer other security groups, ip adresses, cidr blocks but **not DNS names**.
 If we have a security group 1 which authorizes inbound traffic from security group 1 and security group 2, then that helps us in the following way. Suppose there are 4 instances. I1 has SG1 attached. I2 has SG2 attached. I3 has SG3 attached. I4 has SG1 attached. So inbound traffic is allowed to I4 from I1 and I2.
 Inbound traffic is allowed to I1 from I4 and I2. 
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/SG_REFERENCED.PNG" width="80%" height="80%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SG_REFERENCED.PNG" width="80%" height="80%"/>
 
 #### Public vs Private vs Elastic IP
 
@@ -100,7 +100,7 @@ Networking is of 2 sorts - IPv4 and IPv6. Both are supported by AWS.
 + If we want to persist ips between restarts, go to network and security > Elastic ip > Allocate elastic ip from Amazon's pool of IPV4 adresses or bring in your own pool. > Allocate
 + Then associate elastic ip to ec2 instance. Now if we start and stop, public ip is retained as it is an elastic ip. **Elastic IPs get charged for when not associated with an EC2 instance**
   
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PUBLIC_VS_PRIVATE_IP.PNG" width="60%" height="60%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/PUBLIC_VS_PRIVATE_IP.PNG" width="60%" height="60%"/>
 
 #### Install apache on EC2.
 ```
@@ -185,7 +185,7 @@ echo "Hello World from $(hostname -f)" > /var/www/html/index.html
 + Spot instances are terminated by AWS if spot price for that capacity increases. However Amazon does not charge for partial usage of hour in that case. However, if instance is terminated by customer, then whole hour is charged for.
 + The spot price can fluctuate but it still provides large savings over on demand.
 + We can also get pricing history of spot instances and use it to set our max spot price.
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/SPOT_INSTANCE_PRICE_GRAPH.PNG"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SPOT_INSTANCE_PRICE_GRAPH.PNG"/>
 
 ##### How to terminate spot instances
 Spot requests have certain attributes - max price, desired number of instances, launch spec, valid from, valid until, request type - one time or persistent.
@@ -195,7 +195,7 @@ We can only cancel spot instance requests that are open, active or disabled.
 + Cancelling a spot request will not terminate instances it created, we have to kill them manually.
 + We have to first cancel the spot request and then terminate the instances else they will be created again.
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/TERMINATE_SPOT_INSTANCES.PNG"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/TERMINATE_SPOT_INSTANCES.PNG"/>
 
 ##### SPOT Fleets
 
@@ -230,11 +230,11 @@ It will launch from possible launch pools. The launch pools have different insta
 + Instances running on dedicated hardware or shared with instances in my account.
 + No control over instance placement. Can move hardware after stop / start.
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/DEDICATED_HOST_VS_INSTANCE.PNG" width="40%" height="40%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/DEDICATED_HOST_VS_INSTANCE.PNG" width="40%" height="40%"/>
 
 **A great combo is reserved instances for baseline capacity(webapps) , on demand for unpredictable work and spots for peaks.** This results in more agility and cost savings.  
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/INSTANCE_PRICE_COMPARISON.PNG" width="80%" height="80%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/INSTANCE_PRICE_COMPARISON.PNG" width="80%" height="80%"/>
 
 |Which host | When |
 |-----------|------|
@@ -261,7 +261,7 @@ It will launch from possible launch pools. The launch pools have different insta
 If the instance bursts, it utilizes "burst credits". If credit is exhausted, cpu cannot burst any more. If the instance stops bursting, then burst credits are accumulated again. If the instance is always running low on burst credits, then we may need to move to a non burstable instance.
 We can see credit usage(goes up during a spike) and credit balance(goes down during a spike) in cloud watch. The larger the instance, the faster credits are earned.
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/CPU_CREDIT_T2T3.PNG" width="60%" height="60%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/CPU_CREDIT_T2T3.PNG" width="60%" height="60%"/>
 
 **Unlimited T2/T3 :** They have unlimited burst credit balance, but we pay extra money for burst credits over standard burst credit balance. But there is no loss in performance.
 
@@ -325,14 +325,14 @@ All EC2 instances are on same rack(same hardware) in same availability zone.
 + PROS - low latency and great networking(10 GBps bandwidth between instances).
 + CONS - If the rack fails, all EC2 instances fail at the same time, so we have increased risk of failure across stack. 
 + This is typically used for Big data jobs and low latency high throughput applications.
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PG_CLUSTER.png" width="80%" height="80%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/PG_CLUSTER.png" width="80%" height="80%"/>
 
 ##### Spread placement group:
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PG_SPREAD.png" width="80%" height="80%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/PG_SPREAD.png" width="80%" height="80%"/>
 Spread is the opposite of cluster. Here risk is minimized. All EC2 instances are located in different hardware in different availability zones. So if one AZ fails, others will still be up and running. But we are limited to 7 instances per AZ per placement group. This cannot be used for very big applications. It is used for applications that need to maximize high availability - critical applications.
 
 ##### Partition placement group:
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PG_PARTITION.png" width="80%" height="80%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/PG_PARTITION.png" width="80%" height="80%"/>
 Within an availability zone, we have different partitions(set of racks). We can create upto 7 patitions in a partition placement group. Each partition can have multiple EC2 instances. So even if one rack fails, other partitions will be up.
 
 Network And Security > Placement Group > Name and Strategy(cluster, spread or partition). Then launch an instance > Configure Instance Details > Add instance to placement group > If placement strategy is partition, we can select partition value or auto distribution( AWS will  equalize instances). The clsuter strategy is not available for T2, it is only available for high performance instances.
@@ -352,7 +352,7 @@ Each ENI can have the following attributes.
 
 Network And Security > Network Interfaces - We can create our own ENI > Here we can autoassign IPV4 private ip or add custom  > Attach security groups and create.
 We can attach this ENI to an instance. We can also detach the ENI and attach it to another instance. **So one EC2 can have multiple ENIs**. but only 1 ENI can be used with 1 EC2instance. Also even if an EC2 instance has 2 ENIs attached, **it can have only 1 public ip** and **the ENI and EC2 instance must be in same subnet(availability zone)**.
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/MULTIPLE_ENI.png" width="50%" height="50%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/MULTIPLE_ENI.png" width="50%" height="50%"/>
 
 #### EC2 Hibernate
 
@@ -369,7 +369,7 @@ On START: OS boots and EC2 user data script is run. On REBOOT: OS boots, applica
 
 Configure Instance Details > Stop > Stop - Hibernate Behavior > Enable Hibernation > Encrypt EBS volume(mandatory). We can now right click on instance > stop - hibernate. If we start again, the uptime fori nstance will include the uptime the instance was running for previously.
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/EC2_HIBERNATE.png" width="50%" height="50%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/EC2_HIBERNATE.png" width="50%" height="50%"/>
 
 #### Solution architecture:
 
