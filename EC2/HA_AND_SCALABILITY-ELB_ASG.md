@@ -39,6 +39,7 @@ They are crucial for load balancers because through them load balancers get to k
 + The healthcheck is done on a port and a route(usually /health)
 + If the response is not 200(ok), then the instance is unhealthy. 
 + Health checkups are done every 5 seconds by default but they can be configured.
++ **Healthcheck timeout must be less than interval**
 
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ELB_HEALTHCHECK.png" width="60%" height="60%"/>
 
