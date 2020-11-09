@@ -309,8 +309,19 @@ We can circumvent this by launching an instance from the AMI and then creating a
   + We cannot copy an encrypted AMI that is shared with us unless the underlying snapshot and encryption key is shared with us. If they are shared, we can copy the snapshot and reencrypt it with a key of our own. We own the copied snapshot and can register it as an AMI.
   + We cannot copy an AMI with an associated billing product code that was shared with us from another account. This includes windows AMIs and AMIs from Amazon marketplace. To copy a shared AMI with an associated product billing code, we have to launch an instance from that AMI and then create an AMI from that instance.
 + **Sharing an AMI**
- + Modify image permissions - 1) public or 2) private ( In this case we have to provide AWS account numbers, we have to share AMI with)
- + Check the checkbox which says Add create volume permissions. This allows to copy AMIs.
+  + Modify image permissions - 1) public or 2) private ( In this case we have to provide AWS account numbers, we have to share AMI with)
+  + Check the checkbox which says Add create volume permissions. This allows to copy AMIs.
+  
+
+#### EC2 Placement Groups:
+
+We use placement groups when we want to control how EC2 instances are placed in AWS infrastructure. That strategy can be defined using placement groups. We cannot directly interact with hardware in AWS but we can let AWS know how we would like to place the instances relative to one another. When we create a placement group, we can have 3 strategies. 
+  + Cluster(High performance, high risk) - cluster instances are placed in a low latency group in a single availability zone.
+  + Spread - instances spread across different hardware ( restrictions : **max 7 instances per group per AZ** ) . They are used for critical applications.
+  + Patition - similar to spread in the sense that instances are spread across partitions(different racks of hardware within an availability zone). It scales to hundreds of instances per group. They are used for Hadoop, Cassandra and Kafka. They are not isolated from failure totally but are isolated from partition failure.
+  
+##### Cluster placement group:
+
  
  
 #### ENI 
