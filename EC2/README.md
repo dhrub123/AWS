@@ -348,11 +348,11 @@ Each ENI can have the following attributes.
 + An attached MAC adress
 + **We can create ENI independently and attach them on the fly(move them) on EC2 instances for failover**.
 + Bound to specific availability zone.
++ https://aws.amazon.com/blogs/aws/new-elastic-network-interfaces-in-the-virtual-private-cloud/
 
 Network And Security > Network Interfaces - We can create our own ENI > Here we can autoassign IPV4 private ip or add custom  > Attach security groups and create.
 We can attach this ENI to an instance. We can also detach the ENI and attach it to another instance. **So one EC2 can have multiple ENIs**. but only 1 ENI can be used with 1 EC2instance. Also even if an EC2 instance has 2 ENIs attached, **it can have only 1 public ip** and **the ENI and EC2 instance must be in same subnet(availability zone)**.
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/MULTIPLE_ENI.png" width="80%" height="80%"/>
-https://aws.amazon.com/blogs/aws/new-elastic-network-interfaces-in-the-virtual-private-cloud/
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/MULTIPLE_ENI.png" width="50%" height="50%"/>
 
 #### EBS(Elastic block storage)
 
