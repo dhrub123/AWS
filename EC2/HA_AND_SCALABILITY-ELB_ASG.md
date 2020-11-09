@@ -17,4 +17,50 @@ Running our application in at least 2 datacenters or availability zones. The goa
 
 #### ELB:
 
+Load Balancers are servers that forward internet traffic to multiple EC2 instances(servers) downstream. Users have a single point of entry and at the backend, we can have many EC2 instances which can scale and serve traffic. So load balancers do the following:
++ Spread load across multiple downstream instances
++ Expose a single point of entry(DNS) to our application SO the users just need to know the hostname of load balancer.
++ It will seamlessly handle failures  of downstream instances through healthchecks. So it is important to perform regular healthchecks of downstream instances.
++ Load balancers provide SSL termination(https) security for websites.
++ Enforce stickiness with cookies
++ High availability across availability zones which means load balancers can spread across multiple azs.
++ Load balancers separate public traffic(Users to load balancer) from private traffic(Load balancer to EC2).
+
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ELB.png" width="60%" height="60%"/>
+
+###### Why AWS ELB
++ It is a managed load balancer - AWS guarantees that it will be working and AWS is responsible for maintenance, upgrades , HA etc. 
++ AWS provides configuration knobs.
++ Own load balancer will be much cheaper but we will have to manage a lot of configurations since they are complicated and require a lot of effort.
++ AWS ELB can be integrated with different services.
+
+#### Healthchecks:
+They are crucial for load balancers because through them load balancers get to know if downstream servers or instances are healthy (can reply and serve requests)
++ The healthcheck is done on a port and a route(usually /health)
++ If the response is not 200(ok), then the instance is unhealthy. 
++ Health checkups are done every 5 seconds by default but they can be configured.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ELB_HEALTHCHECK.png" width="60%" height="60%"/>
+
+#### Types of managed Load Balancers:
+There are 3 types of load balancers.
++ Classic load balancer(v1 - old generation - 2009) - http, https, tcp
++ Application load balancer(v2 - new generation - 2016) - http, https, websocket
++ Network Load balancer(v2 - new generation - 2017) - tcp, tls(secure tcp) and udp
+It is recommended to use newer load balances since they have more features. We can setup internal(private - not accessible from public web) and external(public) ELBs.
+
+#### Load Balancer security group:
+Users will access ELB from anywhere using http or https. So the inbound rule in load balancer security group should be traffic from 0.0.0.0/0(anywhere) on port 80 and 443. But the downstream EC2 instances should only recieve only HTTP traffic from only ELB. So the application security group will reference ELB security group which will in turn enable HTTP traffic on port 80 from ELB security group.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ELB_SG_REFERENCE.png" width="60%" height="60%"/>
+
+###### Important points
++ Load balancer does not scale instantaneously. So if we anticipate large volume , AWS can be contacted for warmup.
++ Troubleshooting
+  + 4XX errors are client induced
+  + 5XX errors are application induced
+  + 503 means at capacity or no registered target
+  + If load balancer cannot conenct to application, please check security groups
++ Monitoring
+  + Each ELB access request is logged
+  + Cloud watch metrics give us aggregate statistices like connection count
