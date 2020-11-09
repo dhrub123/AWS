@@ -321,11 +321,11 @@ We use placement groups when we want to control how EC2 instances are placed in 
   + Patition - similar to spread in the sense that instances are spread across partitions(different racks of hardware within an availability zone). It scales to hundreds of instances per group. They are used for Hadoop, Cassandra and Kafka. They are not isolated from failure totally but are isolated from partition failure.
   
 ##### Cluster placement group:
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PG_CLUSTER.png" width="80%" height="80%"/>
-All EC2 instances are on same rack(same hardware) in same availability zone. 
-+ PROS: low latency and great networking(10 GBps bandwidth between instances).
-+ CONS: If the rack fails, all EC2 instances fail at the same time, so we have increased risk of failure across stack. 
+All EC2 instances are on same rack(same hardware) in same availability zone.
++ PROS - low latency and great networking(10 GBps bandwidth between instances).
++ CONS - If the rack fails, all EC2 instances fail at the same time, so we have increased risk of failure across stack. 
 + This is typically used for Big data jobs and low latency high throughput applications.
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PG_CLUSTER.png" width="80%" height="80%"/>
 
 ##### Spread placement group:
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/PG_SPREAD.png" width="80%" height="80%"/>
