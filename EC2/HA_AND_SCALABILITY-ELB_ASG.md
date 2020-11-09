@@ -50,7 +50,7 @@ There are 3 types of load balancers.
   + We get a fixed hostname - XXX.region.elb.amazonaws.com
   + We go to Load Balancers > Create a load balancer > we have 3 choices but we will select classic and click create > Give name , select VPC, internal or 
     external, listener configuration - our ELB is going to listen to port 80(load balancer port) on HTTP and backtalk with instances on port 80(instance port). 
-    > assign security group - create new security group , give name and inbound rule is allow port 80 from anyone > configure health check - ping protocol is
+    Then assign security group - create new security group , give name and inbound rule is allow port 80 from anyone > configure health check - ping protocol is
     http, ping port is 80 and ping path is /index.html , then response timeout(5 sec), interval(10 sec), unhealthy threshold(2) and healthy threshold(5) - after
     how many healthy pings, instance can be considered healthy> Add EC2 instances > Create. Now under instance in the load balancer, we can see the instance with
     a status of inService(means it is passing health check). Now if we give the DNS name of the ELB in browser, we can see the response from EC2. But if we give 
