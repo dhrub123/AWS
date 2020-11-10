@@ -156,9 +156,57 @@ xvdb    202:16   0   2G  0 disk /data
   any volumes with mentioned tags), Define schedule an start time, retention rule( number of snapshots of a target volume to retain), Copy tags or Add tags,
   IAM Role. This provides automated backup solution.
   
-#### EBS Migration
+#### EBS Operation: Volume Migration
 + EBS volumes are locked to specific AZ. To migrate it to a different AZ or region, we have to snapshot the volume, copy it to a different region and create a 
   volume out of that snapshot in the AZ of choice
 + Snapshots > RIght Click on volume > Create Volume > Select AZ - and we get the snapshot in the new AZ
 
-#### EBS Operation: Volume Migration
+#### EBS Encryption
+When we create an encrypted EBS volume, we get the following.
++ Data at rest encrypted inside volume
++ All the data in flight moving between instance and volume is encrypted
++ All snapshots are encrypted
++ All volumes created from snapshots are encrypted
++ Encryption and Decryption is handled transparently - we have to do nothing and has a minimal impact on latency
++ EBS Encryption leverages KMS keys(AES-256)
++ When we copy an unencrypted snapshot, we can enable encryption
++ Snapshots of encrypted volumes are encrypted
+
+To encrypt an unencrypted EBS volume attached to an EC2 instance,
++ We have to create a snapshot of the volume
++ Encrypt the EBS snapshot using the copy command
++ Create a new volume from the snapshot which is encrypted now
++ Attach the encrypted volume to the original EC2 instance.
++ Unencrypted EBS volume --> results in unencrypted snapshot --> Creating a volume from it results in encrypted volume
+
+#### EBS vs Instance Store
+Some instances do not come with root EBS volume, they come with an Instance store or ephemeral storage
++ Instance store is a physically disk(**very high IOPS**) attached to the physical server where our EC2 is vs EBS which is a network drive
++ PROS : Better I/O performance, good for buffer/cache/scratch data or temporary content, Data survives reboots
++ CONS : On stop or termination isntance store is lost, we cannot resize instance store and backups must be operated by user, no right click> backup here
++ Disks up to 7.5 TB which can change over time and can be stripped to reach 30 TB but once we setup a disk in local instance store, we cannot resize.
++ It is block storage just like EBS so we can have file system on it.
++ It cannot be resized and **there is risk of data loss if hardware fails so we need to have data replication**
++ It shows up as ephemeraln in console
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ISTORE_IOPS.png" width="60%" height="60%"/>
+
+#### EBS RAID CONFIGURATIONS
+
+EBS has raid option. But it is already redundant storage(replicated within an AZ). So what if we want to increase IOPS to 100000 IOPS or mirror EBS volumes.
+We will mount volumes in parallel in RAIS settings as long as OS supports it. Some RAID options are RAID0, RAID1, RAID5 and RAID6(5 and 6 are not recommended for EBS). **This is done in OS level , not in console **
++ **RAID 0 means increased performance**. We have an EC2 instance which has one logical volume backed by 2 or more EBS volumes. So when we do a write, it may go
+  to EBS volume 1 or EBS volume 2. So they get distributed between the 2 volumes. So when we combine 2 volumes, we get total disk space and IO of the volumes.
+  But if one of these disks fail, all the data is failed. Use cases are applications that need a lot of IOPS but does not need fault tolerance like a database
+  which already has replication built in. Using this we can have a big disk with lots of IOPS. We can go 100000 IOPS by combining 10 volumes of 10000 IOPS each.
+  For example if we have 2 500 GB Amazon EBS IO1 volumes with 4000 provisioned IOPS each, it will create a 1000 GB RAID0 array with an available bandwidth of 
+  8000 IOPS and 1000 MB/s of throughput.
++ **RAID 1 means fault tolerance**. Here we write to both volumes at the same time. RAID 1 = mirroring a volume to one another. If one of the volume fails, the
+  other one is still working. We have to send the data to 2 EBS volumes at the same time so 2x network throughput. Use case is applications that need increased
+  volume fault tolerance and applications where you need to service disks. For example if we have 2 500 GB Amazon EBS IO1 volumes with 4000 provisioned IOPS
+  each, it will create a 500 GB RAID1 array with an available bandwidth of 4000 IOPS and 500 MB/s of throughput.
+
+|RAID0|RAID1|
+|-----|-----|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/RAID0.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/RAID1.png" width="50%" height="50%"/>|
+
