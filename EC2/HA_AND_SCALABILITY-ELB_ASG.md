@@ -190,6 +190,6 @@ This feature is called connection draining in case of a CLB or deregistration de
 + The deregistration delay is 300 seconds by default but can be between 1 to 3600 seconds. We can also disable it by setting a value of 0.
   + If requests are short(1 to 5 seconds), set a low value.
   + But if requests take a long time, then the value can be set to a higher value to give in flight requests a chance to complete.
-  + We can also disable it and send back a error when a request comes but EC2 is deegistering.
+  + We can also disable it and send back a error when a request comes but EC2 is deregistering.
 
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ELB_CONN_DRAIN.png" width="40%" height="40%"/>
