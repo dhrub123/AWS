@@ -131,3 +131,54 @@ Users will access ELB from anywhere using http or https. So the inbound rule in 
 + Monitoring
   + Each ELB access request is logged
   + Cloud watch metrics give us aggregate statistices like connection count
+
+#### Elastic Load Balancer : Cross Zone load balancing
+
+When cross zone load balancing is enabled, the traffic is distributed evenly across all registered instances in different AZs. This is the best way to spread loads. But if this is not present, each load balancer node will distribute traffic evenly across registered instances in the availability zone.
++ Classic Load Balancer - By default disabled but can be enabled in attributes. There is not charge for Inter AZ data if this is enabled.
++ Application Load Balancer - Always on and cannot be disabled. There is not charge for Inter AZ data.
++ Network Load Balancer - By default disabled but can be enabled in attributes. **There is some charge for Inter AZ data if this is enabled for NLB.**
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/CROSS_ZONE_ELB.png" width="60%" height="60%"/>
+
+#### ELB SSL Certificates
+
+SSL/TLS Certificates
++ An SSL(Secure Sockets Layer) Certificate allows traffic between clients and load balancer to be encrypted in transit. This is called in flight encryption. The 
+  data can only be decrypted by sender and receiver. TLS(Transport Layer Security) is a newer version of SSL. Mainly TLS certificates are used nowadays,
++ Public SSL certificates are issued by certificate authorities(CA) like Comodo, Symantech, GoDaddy, GlobalSign, Digicert etc. We can encrypt the connection 
+  between client and load balancer using these public certificates.
++ SSL certificates have an expiration date and they must be renewed regularly.
++ The load balancer uses an X509 certificate which is a SSL or a TLS certificate. These certificates can be managed in AWS using **ACM(AWS Certificate** 
+  **Manager)**. We can also upload our own certificates.
++ HTTPS listener : 
+  + We must specify a default certificate 
+  + We can add an optional list of certificates for multiple domains.
+  + Client can use **SNI(Server name indication)** to specify the hostname they reach
+  + Ability to specify a security policy to support older versions of SSL/TLS(Legacy Clients)
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SSL_ELB.png" width="60%" height="60%"/>
+
+###### SNI
+It solves the problem of loading multiple SSL certificates onto one web server to serve multiple websites.
++ It is a newer protocol and requires the client to mention the hostname of the target server in initial SSL handshake. The server will then find the correct
+  certificate or return the default one.
++ It only works for ALB and NLB (Newer generation), Cloudfront, does not work with CLB
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SNI.png" width="60%" height="60%"/>
+
+###### ELB SSL Certificate main points
++ CLB(V1) 
+  + Supports only one SSL certificate
+  + Must use multiple CLB for multiple hostname with multiple SSL certificates
++ ALB(V2)
+  + Supports multiple listeners with multiple SSL certificates using SNI
++ NLB(V2)
+  + Supports multiple listeners with multiple SSL certificates using SNI
++ For CLB Go to Load Balancer > Listeners > Edit > Add HTTPS listener and we need to select a security cipher(protocols we want to support) > setup SSL 
+  certificates and we can import them directly or use ACM. **We can have only one certificate for a CLB**.
++ For ALB, we can add listener for HTTPS:443 > Set security policy - Select Default SSL certificate (ACM or Import). So for each rule , we can have a different
+  SSL certificate
++ For NLB, we can add listener for TLS:443 > Set security policy - Select Default SSL certificate (ACM or Import). So for each rule , we can have a different
+  SSL certificate
+  
