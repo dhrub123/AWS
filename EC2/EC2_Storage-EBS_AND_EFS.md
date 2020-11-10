@@ -4,6 +4,7 @@ An EC2 machine loses its root volume(main drive) when it is manually terminated.
 So we nned to store important data not on root volume but on an attached volume. This is an EBS(Elastic Block Store) volume. It is a network drive that we can attach to instances while they run. We can use this to let our instances pesist data.
 
 + It is a network drive, not a physical drive. It uses netowrk to communicate with the instance and hence there may be latency.
++ 1 EBS can be accessed from only 1 EC2.
 + It can be detached from an instance and attached to another one very quickly as log as they are in the same AZ.
 + It is locked to an Availability Zone. It is not available in other regions. To move a volume across AZs, we have to snapshot it.
 + When we create a EBS volume, we have to provide a provisioned capacity like size in GB and IOPS.
@@ -210,3 +211,45 @@ We will mount volumes in parallel in RAIS settings as long as OS supports it. So
 |-----|-----|
 |<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/RAID0.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/RAID1.png" width="50%" height="50%"/>|
 
+#### EFS - Elastic File System
++ It is a managed NFS(Network file system) that can be mounted on many EC2 instances **across multiple availability zones**.
++ It is highly available, scalable, expensive(3xGP2), pay for what we use(We only pay for what we store)
++ We attach a security group to EFS to manage incoming connections(different ec2 instances across different AZs) and they will be mounting the same EFS on to
+  their file system and access the same files. So security group is used to control access to EFS.
++ Use case : content management, web serving, data sharing, wordpress
++ Uses NFSv4.1 protocol
++ Encryption at rest using KMS
++ **Compatible with only linux based AMIs not windows**. POSIX file systems - Linux that has a standard file API
++ File system scales automatically, pay-per-use, no capacity planning
++ Performance and Storage classes
+	+ EFS Scale - It is built for 1000s of concurrent NFS clients, 10 GB+ /s throughput. It can grow to Petabyte scale file system automatically.
+	+ Performance mode set at creation time
+		+ General Purpose - default, latency-sensitive use cases like web server, cms etc
+		+ MAX I/O - higher latency, throughout, highly parallel(big data, media processing)
+	+ Storage Tiers (lifecycle management feature - move file after N days)
+		+ Standard - For frequently accessed files
+		+ Infrequent access (EFS-IA) - cost to retrieve files, lower price to store
++ Go to EFS console > Give name > Customize > Automatic backups, Lifecycle Mangement which helps us to move to EFS-IA if unused for more than 30 days,
+  Performance mode - General Purpose or Max I/O, Throughput mode - Bursting or Provisioned(Mention Throughput), Enable encryption at rest > Network > 
+  We can mount in different AZ and for each AZ we need a security group. So we create a security group and define inbound rule - NFS and source as security
+  group EC2_EFS_SG defined for EC2 isntance below.> File system policy > Create
++ We then create 2 instances in 2 AZs and create a security group(EC2_EFS_SG) for EFS and attach it. We have to install amazon-efs-utils package in our ec2.
+  ```
+  sudo yum install -y amazon-efs-utils
+  ```
++ We go to EFS console and click attach. This gives us info on how to mount EFS drives to our EC2. So we ssh into EC2 and execute following commands.
+  ```
+  mkdir efs
+  sudo mount -t efs -o tls fs-5dafeeac:/ efs(we get this command from EFS console - attach - mount via DNS) - this needs the sg configs
+  sudo touch hello-world.txt( This will create the file and it will be visible in all other instances which have mounted this EFS)
+  ```
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/EFS.png" width="50%" height="50%"/>
+
+#### EBS vs EFS - Elastic block store
+|EBS|EFS|
+|---|---|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/EBS_1.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/EFS_1.png" width="50%" height="50%"/>|
+
++ In EBS we are charged for provisioned capacity, not what we use but EFS is pay per use which we can leverage for cost savings
++ EFS is for NFS to be mounted across multiple instances, EBS is for a network volume mounted to a single EC2 instance locked in AZ and instance store means 
+  maximum amount of IO.
