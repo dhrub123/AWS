@@ -385,31 +385,3 @@ Configure Instance Details > Stop > Stop - Hibernate Behavior > Enable Hibernati
 + Basic Instances - R, M, I, C, G, T2/T3
 + EC2 instances can be started in placement groups - cluster, spread and partition
 + Create AMIs to preinstall software on EC2 - faster boot time. AMIs are region scoped but can be copied across regions or accounts
-
-#### EBS(Elastic block storage)
-
-This is a virtual disk just like EC2 is a virtual machine.  It allows to create storgae volumes and then add to EC2 instance. Once attached we can create a file system , run a database etc. They are placed in a secific availability zone and are automatically replicated to protect from failure.
-
-##### SSDs
-+ General Purpose SSD(GP2) - 
-  + General purpose, balances both price and performance
-  + 3000 IOPS per gig with upto 10000 IOPS and ability to burst upto 3000 IOPS for extended period of time for volumes at 3334 Gib and above. 
-+ Provisioned IOPS SSD(IO1)
-  + Designed for I/O intensive apps like large relational or NOSQL databases.
-  + Used for more than 10000 IOPS
-  + Can provision upto 20000 IOPS per volume.
-  
-##### Magnetic volumes
-+ Throughput optimized HDD(ST1)
-  + Big Data/ Data warehousing/ Log  processing
-  + Can only be an additional volume and **not a boot volume**
-+ Cold HDD(SC1)
-  + Lowest cost for infrequently accessed workloads
-  + Usage may be a file server
-  + Can only be an additional volume and **not a boot volume**
-+ Magnetic(standard)
-  + Lowest cost per gigabyte for all EBS volumes that is **bootable**
-  + Ideal for workloads where data is accessed infrequently and where emphasis is on lowest storgae cost.
-  + Previous generation
-  
-
