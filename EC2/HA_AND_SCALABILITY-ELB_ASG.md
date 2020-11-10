@@ -193,3 +193,57 @@ This feature is called connection draining in case of a CLB or deregistration de
   + We can also disable it and send back a error when a request comes but EC2 is deregistering.
 
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ELB_CONN_DRAIN.png" width="40%" height="40%"/>
+
+#### Auto Scaling Groups
+
+The load on our websites can change in real life. In the cloud we can create or get rid of our servers very quickly. 
++ The goal of an Auto Scaling Group is to scale out(add EC2 instances) to match an increased load or scale in(remove EC2 instances) to match a decreased load. 
++ We can ensure that instances can grow to a certain amount and shrink to a certain amount by defining minimum and maximum number of machines running in an ASG. + We can automatically register new instances to a load balancer using ASG.
++ The minimum size is the number of EC2 instances we will have running for sure into the autoscaling group.
++ The actual size/desired capacity is the number of current instances running at this moment in ASG.
++ The maximum size is how many instances can be added to ASG to scale out when load goes up.
++ Load balancers and auto scaling group really works hand in hand in AWS.
++ ASG has the following attributes.
+  + A launch configuration
+    + AMI + Instance type, EC2 User data, EBS volumes, Security Groups, SSH Key Pair
+  + Minimum size/ Maximum size and Initial Capacity
+  + Network and Subnets Information in which ASG will be able to create instances
+  + We will define load balancer information or target group information
+  + Scaling Policies
++ Go to Auto Scaling > Choose Launch Template or Launch Config(Launch template allows a spot fleet of instances and Launch Config just allows one instance type)
+  >  Give a name and create. > Give name and Description > We do not want auto scaling guidance, select an AMI and instance type, key pair, networking(VPC and
+  SG) > Add storage > Tags > User Data under Advanced > Configure Settings - Purchase options and Instance types(ondemand or sport or a combo of on demand and 
+  spot), different subnets > Load balancing - ALB or CLB, specify target group(when an instance comes up, it will automatically be registered to that taget
+  group) > Healthchecks - EC2 or ELB > Group size or scaling policies(Desired, minum and maximum), Scale-in and Protection > Create. We can see what is happening
+  in activity. We can edit the desired capacity and if desired is greater than actual, a new instance will automatically be created(scale out). Similarly during 
+  a scale in , if desired is less than actual , instances will be taken out automatically.
+    
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ASG.png" width="40%" height="40%"/>
+
+#### Auto Scaling Alarms
+
++ It is possible to scale an ASG group based on cloudwatch alarms.
++ An alarm monitord a metric like Average CPU.
++ **Metrics are computed based on average of all ASG instances.**
++ Based on alarm, we can create scale out or scale in policies.
++ It is now possible to define better auto scaling rules that are directly managed by EC2. These rules are easier to setup.
+  + Target average CPU usage
+  + Number of requests on the ELB per instance
+  + Average network in and average network out
++ We can also auto scale using custom metric like number of connected users. We can send custom metric from application on EC2 to Cloudwatch using PutMetricAPI.    
+  Then create a cloud watch alarm to react to high or low values. The use the cloud watch alarm as scaling policy of ASG.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ASG_ALARMS.png" width="40%" height="40%"/>
+
+#### ASG brain dump
+
++ Scaling policies can be based on CPU, Network and can even be on custom metrics or based on a schedule if we know the pattern in which visitors tend to visit
+  our website.
++ ASG can use launch configurations or launch templates.
++ To update an ASG, we must provide a new launch configuration or launch template.
++ IAM roles attached to an ASG will get assigned to EC2 instances.
++ ASG is free. But we pay for underlying resources.
++ Having instances under ASG creates an extra safety net because if they get terminated for any reason, the ASG will create another one as a replacement.
++ ASG can terminate instances marked by load balancers as unhealthy and replaces them.
+
+
