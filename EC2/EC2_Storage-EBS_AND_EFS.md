@@ -140,28 +140,25 @@ xvda    202:0    0   8G  0 disk
 └─xvda1 202:1    0   8G  0 part /
 xvdb    202:16   0   2G  0 disk /data
 ```
-
-##### SSDs
-+ General Purpose SSD(GP2) - 
-  + General purpose, balances both price and performance
-  + 3000 IOPS per gig with upto 10000 IOPS and ability to burst upto 3000 IOPS for extended period of time for volumes at 3334 Gib and above. 
-+ Provisioned IOPS SSD(IO1)
-  + Designed for I/O intensive apps like large relational or NOSQL databases.
-  + Used for more than 10000 IOPS
-  + Can provision upto 20000 IOPS per volume.
+#### EBS Snapshots:
++ Incremental - only backup changed blocks
++ EBS backups use IO of EBS volume, so we should not backup when there is aheavy load in our application, we should try to backup during quieter or downtime.
++ Snapshots are internally stored in S3 but we cannot directly see the. We get billed for the storage.
++ Not necessary but recommended to detach volume to do snapshot.
++ Max 100,000 snapshots per account
++ Can copy snapshots across AZ or region
++ Can make AMI from snapshots
++ EBS volumes restored by snapshots need to be pre warmed using fio or dd command to read entire volume for optimal performance
++ Snapshots can be automated using Amazon Data Lifecycle manager
++ Right click on volume > Create Snapshot - Give description > Create - Snapshot backs up only the blocks that are used. Backup takes a little time.
++ We can create an Image or a volume from a snapshot, copy it to a different region or encrypt it
++ **Lifecycle manager** helps schedule and manage creation of EBS snapshots - Create Snapshot Lifecycle Policy > Target volumes with tags( the policy applies to
+  any volumes with mentioned tags), Define schedule an start time, retention rule( number of snapshots of a target volume to retain), Copy tags or Add tags,
+  IAM Role. This provides automated backup solution.
   
-##### Magnetic volumes
-+ Throughput optimized HDD(ST1)
-  + Big Data/ Data warehousing/ Log  processing
-  + Can only be an additional volume and **not a boot volume**
-+ Cold HDD(SC1)
-  + Lowest cost for infrequently accessed workloads
-  + Usage may be a file server
-  + Can only be an additional volume and **not a boot volume**
-+ Magnetic(standard)
-  + Lowest cost per gigabyte for all EBS volumes that is **bootable**
-  + Ideal for workloads where data is accessed infrequently and where emphasis is on lowest storgae cost.
-  + Previous generation
-  
+#### EBS Migration
++ EBS volumes are locked to specific AZ. To migrate it to a different AZ or region, we have to snapshot the volume, copy it to a different region and create a 
+  volume out of that snapshot in the AZ of choice
++ Snapshots > RIght Click on volume > Create Volume > Select AZ - and we get the snapshot in the new AZ
 
-
+#### EBS Operation: Volume Migration
