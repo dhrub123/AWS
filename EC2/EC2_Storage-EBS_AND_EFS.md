@@ -10,10 +10,39 @@ So we nned to store important data not on root volume but on an attached volume.
   + We get billed for the provisioned capacity, not what we use. So if we use 1 GB but we have provisioned 1 TB, we still get billed for 1 TB.
   + We can increase the capacity of the disk over time and start small.
 + Volume types
-  + GP2(SSD) - General purpose SSD volume that balances both price and performance for a variety of workloads.
-  + IO1(SSD) - Highest performance SSD volume for mission critical low latency or high throughput workloads
-  + ST1(HDD) - Low cost HDD volume designed for frequently accessed, throughput inensive workloads
+  + GP2(SSD) - General purpose SSD volume that balances both price and performance for a variety of workloads. Comparatively cheaper.
+  	+ Have a burst aspect to it
+  	+ Recommended for most workloads, system boot volumes, virtual desktops, low latency interactive apps and dev and test environments
+	+ Size can range between 1 GB to 16 TB(16384 GB)
+	+ Small GP2 volumes can burst IOPS upto 3000
+	+ Max IOPS is 16000. GP2 has a rule(Baseline is 3 IOPS per GB with a minimum of 100 IOPS). This means at 5334 GB we are at max IOPS. The burst happens
+	  below 1000 GB. So at 999 GB we get 2997 IOPS with burst upto 3000 IOPS but from 1000 GB 3000 IOPS and so on until we reach 5334 where we reach max
+	  possible 16000 IOPS. We cannot set IOPS manually here. **+1TB = +3000IOPS**
+	+ Locked to AZ
+	+ **Throughput is not applicable**
+  + IO1(SSD) - Highest performance SSD volume for mission critical low latency or high throughput workloads. This is for critical business applications which
+    require sustained IOPS performance or more than 16000 IOPS per volume(gp2 limit). Expensive
+    	+ Used for large database workloads like MongoDB, Cassandra, Microsoft SQL Server, MYSQL, POSTGRE, ORACLE
+	+ Size ranges from 4 GB to 16 TB
+	+ IOPS is provisioned(PIOPS) - Min 100 and Max 64000 (Nitro Instances)  else Max 32000 (Other instances)
+	+ The maximum ratio of provisioned IOPS to requested volume size in GB is 50:1
+	+ Here we have to define both IOPS and Size ( And the ratio of 50 to 1 must be maintained with a minimum of 100)
+	+ **Throughput is not applicable**
+  + ST1(Throughput optimized HDD) - Low cost HDD volume designed for frequently accessed, throughput inensive workloads
+  	+ This is for streaming workloads that require consistent fast throughput at a low price
+	+ Big data, Data warehouse, log processing, Apache Kafka
+	+ This cannot be a boot volume
+	+ Size ranges from 500 GB to 16 TB
+	+ Max IOPS is 500(It cannot be set and is shown as NA)
+	+ Max throughput of 500 MB/s - can burst. The baseline throughput is 40 MB/s per TB and can burst upto 500
   + SC1(HDD Cold) - Lowest cost HDD volume designed for less frequently accessed workloads. This is a cold volume.
+  	+ Throughput oriented storage for large volumes of data that is infrequently accessed
+	+ Scenarios where lowest storage cost is important
+	+ Cannot be boot volume
+	+ Size ranges from 500 GB to 16 TB
+	+ Max IOPS is 250(It cannot be set and is shown as NA)
+	+ Max throughput of 250 MB/s - can burst. The baseline throughput is 12 MB/s per TB and can burst upto 250
+	
 + Each volume is charecterized in Size | Throughput | IOPS (I/O Ops per sec)
 + **Only GP2 and IO1 can be used as boot volumes**
 
