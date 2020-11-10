@@ -213,11 +213,12 @@ The load on our websites can change in real life. In the cloud we can create or 
   + Scaling Policies
 + Go to Auto Scaling > Choose Launch Template or Launch Config(Launch template allows a spot fleet of instances and Launch Config just allows one instance type)>
   Give a name and create. > Give name and Description > We do not want auto scaling guidance, select an AMI and instance type, key pair, networking(VPC and
-  SG) > Add storage > Tags > User Data under Advanced > Configure Settings - Purchase options and Instance types(ondemand or sport or a combo of on demand and 
-  spot), different subnets > Load balancing - ALB or CLB, specify target group(when an instance comes up, it will automatically be registered to that taget
-  group) > Healthchecks - EC2 or ELB > Group size or scaling policies(Desired, minum and maximum), Scale-in and Protection > Create. We can see what is happening
-  in activity. We can edit the desired capacity and if desired is greater than actual, a new instance will automatically be created(scale out). Similarly during 
-  a scale in , if desired is less than actual , instances will be taken out automatically.
+  SG - the already exisitng ec2 sg) > Add storage > Tags > User Data under Advanced > Configure Settings - Purchase options and Instance types(ondemand or spot 
+  or a combo of on demand and spot), different subnets > Load balancing - ALB or CLB, specify target group(when an instance comes up, it will automatically be 
+  registered to that target group) - The ASG is not created by the Launch Template. We have to create the ASG and attach the target group to it. > Healthchecks - 
+  EC2 or ELB > Group size or scaling policies(Desired, minum and maximum), Scale-in and Protection > Create. We can see what is happening in activity. We can 
+  edit the desired capacity and if desired is greater than actual, a new instance will automatically be created(scale out). Similarly during a scale in , if 
+  desired is less than actual , instances will be taken out automatically.
     
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ASG.png" width="40%" height="40%"/>
 
