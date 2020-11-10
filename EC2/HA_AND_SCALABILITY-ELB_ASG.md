@@ -210,8 +210,8 @@ The load on our websites can change in real life. In the cloud we can create or 
   + Network and Subnets Information in which ASG will be able to create instances
   + We will define load balancer information or target group information
   + Scaling Policies
-+ Go to Auto Scaling > Choose Launch Template or Launch Config(Launch template allows a spot fleet of instances and Launch Config just allows one instance type)
-  >  Give a name and create. > Give name and Description > We do not want auto scaling guidance, select an AMI and instance type, key pair, networking(VPC and
++ Go to Auto Scaling > Choose Launch Template or Launch Config(Launch template allows a spot fleet of instances and Launch Config just allows one instance type)>
+  Give a name and create. > Give name and Description > We do not want auto scaling guidance, select an AMI and instance type, key pair, networking(VPC and
   SG) > Add storage > Tags > User Data under Advanced > Configure Settings - Purchase options and Instance types(ondemand or sport or a combo of on demand and 
   spot), different subnets > Load balancing - ALB or CLB, specify target group(when an instance comes up, it will automatically be registered to that taget
   group) > Healthchecks - EC2 or ELB > Group size or scaling policies(Desired, minum and maximum), Scale-in and Protection > Create. We can see what is happening
@@ -219,6 +219,27 @@ The load on our websites can change in real life. In the cloud we can create or 
   a scale in , if desired is less than actual , instances will be taken out automatically.
     
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ASG.png" width="40%" height="40%"/>
+
+#### Scaling Policies
+
++ **Target tracking scaling** - (Most simple and easy to set up) for example we want average ASG CPU to stay at 40%. So if CPU goes above 40 percent, more 
+  instances will be provisioned and if CPU goes below 40 percent, instances will be terminated.
++ **Simple / Step scaling** - When a cloud watch alarm is triggered for example when average cpu of group goes over 70%, add 2 more instances or if cpu is
+  less than 30 percent, then remove 1 unit
++ **Scheduled Actions** - Anticipate a scaling based on usage patterns and increase min capacity to 10 at 5pm on Fridays.
++ Scaling cooldowns - The cooldown period ensures that ASG does not launch or termiante additional instances before previous scaling activity takes effect.
+  + In addition to default cooldown for ASG, we can create cooldowns that apply to a specific simple scaling policy. **A scaling specific cooldown period**
+    **overrides the default cooldown period**. One common use case is with a scale in policy. Amazon EC2 auto scaling needs less time to determine whether to 
+    terminate instance. If default cooldown period of 300 seconds is too long, we can reduce costs by applying a scaling specific cooldown period of 180 seconds
+    to the scale-in policy. **If application is scaling up and down frequently each hour, modify ASG cool down timers and Cloud watch alarm period that**
+    **triggers** the scale in.
++ Scaling action occurs - if default cooldown in effect , ignore action else launch or terminate instance.
++ Auto Scaling Group > Automatic Scaling > Scaling Policy > Add Policy - 3 types > Target Tracking Policy > Metric type (Avg CPU Utlization) , Target Value - 40, 
+  Cooldown - 300 default. So if we add another instance here by editing the ASG desired capacity, it will scale out and add another instance. But then CPU usage 
+  is very low. So it will wait for the cloud watch alarm to go off and then it will scale in again.
++ Auto Scaling Group > Automatic Scaling > Scaling Policy > Add Policy - 3 types > Step Scaling - We need to give a name and create a cloud watch alarm, then 
+  define action based on alarm
++ Schedule Action > Give name and select start date and time and give minimum capacity. This is for predictable scaling patterns.
 
 #### Auto Scaling Alarms
 
@@ -246,4 +267,24 @@ The load on our websites can change in real life. In the cloud we can create or 
 + Having instances under ASG creates an extra safety net because if they get terminated for any reason, the ASG will create another one as a replacement.
 + ASG can terminate instances marked by load balancers as unhealthy and replaces them.
 
+#### ASG Architecture
 
++ There is a rule regarding ASG instance termination. By default, there is a Default ASG termination policy.
+  + First find the AZ with the most number of instances.
+  + Then terminate the instance with the oldest launch configuration inside the AZ. 
+  + This is because ASG tries to balance the number of instances across ASG by default.
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ASG_DEF_TERM.png" width="40%" height="40%"/>
+
++ ASG Lifecycle hooks - By default when an instance is launched in an ASG, it is in service. But it goes to pending state when it is launched. So by defining
+  lifecycle hooks, we can send it to Pending Wait state and do a lot of stuff or perform steps before it goes to Pending Proceed and finally in service.
+  Similarly we can also intercept Terminating state using hooks to extratct logs or other information before the instance is finally terminated.
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ASG_LH.png" width="60%" height="60%"/>
+
++ Launch Template vs Launch Configuration
+  + Both allows us to specify ID of AMI, instance type, key pait, security groups and other launch parameters.
+  + Launch Configuration(Legacy) - Must be created every time they need to be updated.
+  + Launch Template(Newer and Recommended) 
+    + They can have multiple versions
+    + Create parameter subsets(partial configuration for reuse and inheritance)
+    + Provision on demand or spot instances or a mix of them
+    + Can use T2 unlimited burst feature
