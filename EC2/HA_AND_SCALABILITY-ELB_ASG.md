@@ -182,3 +182,14 @@ It solves the problem of loading multiple SSL certificates onto one web server t
 + For NLB, we can add listener for TLS:443 > Set security policy - Select Default SSL certificate (ACM or Import). So for each rule , we can have a different
   SSL certificate
   
+#### ELB Connection Draining
+
+This feature is called connection draining in case of a CLB or deregistration delay in case of target groups(ALB and NLB). It is the time to complete in flight requests while the instance is deregistering or is unhealthy.
++ As soon as the instance is in draining mode(deregistering), the ELB will stop sending new requests to it.
++ The ELB will wait for existing connections to be completed for the duration of the connection draining period which is 300 seconds by default.
++ The deregistration delay is 300 seconds by default but can be between 1 to 3600 seconds. We can also disable it by setting a value of 0.
+  + If requests are short(1 to 5 seconds), set a low value.
+  + But if requests take a long time, then the value can be set to a higher value to give in flight requests a chance to complete.
+  + We can also disable it and send back a error when a request comes but EC2 is deegistering.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ELB_CONN_DRAIN.png" width="40%" height="40%"/>
