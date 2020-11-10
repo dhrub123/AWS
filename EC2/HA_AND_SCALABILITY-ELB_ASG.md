@@ -114,7 +114,7 @@ It is recommended to use newer load balancers since they have more features. We 
 + If we enable stickiness in target group for application load balancer and mention a expiration time, we will be redirected to the same ec2 instance for the
   mentioned duration.
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ELB_STICKINESS.png" width="60%" height="60%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ELB_STICKINESS.png" width="40%" height="40%"/>
 
 #### Load Balancer security group:
 Users will access ELB from anywhere using http or https. So the inbound rule in load balancer security group should be traffic from 0.0.0.0/0(anywhere) on port 80 and 443. But the downstream EC2 instances should only recieve only HTTP traffic from only ELB. So the application security group will reference ELB security group which will in turn enable HTTP traffic on port 80 from ELB security group.
@@ -139,7 +139,7 @@ When cross zone load balancing is enabled, the traffic is distributed evenly acr
 + Application Load Balancer - Always on and cannot be disabled. There is not charge for Inter AZ data.
 + Network Load Balancer - By default disabled but can be enabled in attributes. **There is some charge for Inter AZ data if this is enabled for NLB.**
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/CROSS_ZONE_ELB.png" width="60%" height="60%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/CROSS_ZONE_ELB.png" width="50%" height="50%"/>
 
 #### ELB SSL Certificates
 
@@ -157,17 +157,17 @@ SSL/TLS Certificates
   + Client can use **SNI(Server name indication)** to specify the hostname they reach
   + Ability to specify a security policy to support older versions of SSL/TLS(Legacy Clients)
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SSL_ELB.png" width="60%" height="60%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SSL_ELB.png" width="40%" height="40%"/>
 
-###### SNI
+#### SNI
 It solves the problem of loading multiple SSL certificates onto one web server to serve multiple websites.
 + It is a newer protocol and requires the client to mention the hostname of the target server in initial SSL handshake. The server will then find the correct
   certificate or return the default one.
 + It only works for ALB and NLB (Newer generation), Cloudfront, does not work with CLB
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SNI.png" width="60%" height="60%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SNI.png" width="40%" height="40%"/>
 
-###### ELB SSL Certificate main points
+#### ELB SSL Certificate main points
 + CLB(V1) 
   + Supports only one SSL certificate
   + Must use multiple CLB for multiple hostname with multiple SSL certificates
