@@ -89,8 +89,32 @@ There are 3 types of load balancers.
     + <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ALB_RULES.png" width="60%" height="60%"/>
   + <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ALB.png" width="60%" height="60%"/>
   
-+ **Network Load balancer(v2 - new generation - 2017)** - tcp, tls(secure tcp) and udp
++ **Network Load balancer(v2 - new generation - 2017)** 
+  + These are layer 4 load balancers which means they forward tcp, tls(secure tcp) or udp traffic to instances. So it operates at a lower level.
+  + It allows us to handle millions of requests per second. So they are high performance. Latency is very low about 100 ms compared to ALB which is 400 ms.
+  + NLB supports one static IP per AZ which helps us whitelist specific IPs and supports assigning Elastic IPs. So it is different from the others because the 
+    others had static host names
+  + They are not included in EC2 free tier.
+  + Select Network Load Balancer > Give name, Choose Internet Facing , Under Load Balancer Protocol , choose from TCP, UDP, TLS and TCP_UDP and for AZ we can
+    select multiple AZs. We can select IPV4 adress assigned by AWS or choose an Elastic IP.> Configure Routing - Create Target group - Give name , select target
+    type(Instance or IP), protocol(TCP), port and health check settings (Protocol, Port, Healthy Threshold, Unhealthy Threshold, Timeout and Interval) > Register
+    Targets - select instances to register as targets > Create Load Balancer. NLB does not have a security group. So in the earlier EC2 instance security group,
+    we add a rule which allows TCP traffic on port 80 from anywhere.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/NLB.png" width="60%" height="60%"/>
+  
 It is recommended to use newer load balancers since they have more features. We can setup internal(private - not accessible from public web) and external(public) ELBs.
+
+#### Elastic Load Balancer - Stickiness
+
++ Stickiness means that a client will always be redirected to the same instance behind a load balancer. It can be implement in classic and application load
+  balancer.
++ The "cookie" used for stickiness has an expiration date that we control. Usecase : make sure that user does not lose session data
++ Enabling stickiness brings some imbalance to the load in backend EC2 instances. This may result in overloading of a particular instance.
++ If we enable stickiness in target group for application load balancer and mention a expiration time, we will be redirected to the same ec2 instance for the
+  mentioned duration.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/ELB_STICKINESS.png" width="60%" height="60%"/>
 
 #### Load Balancer security group:
 Users will access ELB from anywhere using http or https. So the inbound rule in load balancer security group should be traffic from 0.0.0.0/0(anywhere) on port 80 and 443. But the downstream EC2 instances should only recieve only HTTP traffic from only ELB. So the application security group will reference ELB security group which will in turn enable HTTP traffic on port 80 from ELB security group.
