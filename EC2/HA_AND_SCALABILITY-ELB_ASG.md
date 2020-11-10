@@ -91,6 +91,7 @@ There are 3 types of load balancers.
   
 + **Network Load balancer(v2 - new generation - 2017)** 
   + These are layer 4 load balancers which means they forward tcp, tls(secure tcp) or udp traffic to instances. So it operates at a lower level.
+  + They can expose static IP instead of hostname to end users.
   + It allows us to handle millions of requests per second. So they are high performance. Latency is very low about 100 ms compared to ALB which is 400 ms.
   + NLB supports one static IP per AZ which helps us whitelist specific IPs and supports assigning Elastic IPs. So it is different from the others because the 
     others had static host names
@@ -135,7 +136,7 @@ Users will access ELB from anywhere using http or https. So the inbound rule in 
 #### Elastic Load Balancer : Cross Zone load balancing
 
 When cross zone load balancing is enabled, the traffic is distributed evenly across all registered instances in different AZs. This is the best way to spread loads. But if this is not present, each load balancer node will distribute traffic evenly across registered instances in the availability zone.
-+ Classic Load Balancer - By default disabled but can be enabled in attributes. There is not charge for Inter AZ data if this is enabled.
++ Classic Load Balancer - By default disabled but can be enabled in attributes. There is no charge for Inter AZ data if this is enabled.
 + Application Load Balancer - Always on and cannot be disabled. There is not charge for Inter AZ data.
 + Network Load Balancer - By default disabled but can be enabled in attributes. **There is some charge for Inter AZ data if this is enabled for NLB.**
 
@@ -162,7 +163,7 @@ SSL/TLS Certificates
 #### SNI
 It solves the problem of loading multiple SSL certificates onto one web server to serve multiple websites.
 + It is a newer protocol and requires the client to mention the hostname of the target server in initial SSL handshake. The server will then find the correct
-  certificate or return the default one.
+  certificate or return the default one. So **SNI helps choose the right certificate**.
 + It only works for ALB and NLB (Newer generation), Cloudfront, does not work with CLB
 
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/SNI.png" width="40%" height="40%"/>
@@ -223,7 +224,8 @@ The load on our websites can change in real life. In the cloud we can create or 
 #### Scaling Policies
 
 + **Target tracking scaling** - (Most simple and easy to set up) for example we want average ASG CPU to stay at 40%. So if CPU goes above 40 percent, more 
-  instances will be provisioned and if CPU goes below 40 percent, instances will be terminated.
+  instances will be provisioned and if CPU goes below 40 percent, instances will be terminated. It can also be applied if we want to define scaling policy
+  which ensures average number of connections to EC2 instance.
 + **Simple / Step scaling** - When a cloud watch alarm is triggered for example when average cpu of group goes over 70%, add 2 more instances or if cpu is
   less than 30 percent, then remove 1 unit
 + **Scheduled Actions** - Anticipate a scaling based on usage patterns and increase min capacity to 10 at 5pm on Fridays.
