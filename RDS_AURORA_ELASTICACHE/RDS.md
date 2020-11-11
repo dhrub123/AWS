@@ -29,7 +29,7 @@ RDS is a managed service and so many addon services are provided by AWS on top o
 
 #### Read replicas 
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/READ_REPLICA.png" width="50%" height="50%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/UC2.png" width="50%" height="50%"/>
 
 Read Replicas help us to scale our reads. An application may need to scale out reads due to heavy load. In that case we can use read replicas.
 + Upto 5 read replicas
@@ -41,7 +41,7 @@ Read Replicas help us to scale our reads. An application may need to scale out r
 
 |Usecase1|Usecase2|
 |--------|--------|
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/UC1.png"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/UC2.png"/>|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/UC1.png"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/READ_REPLICA.png"/>|
 
 #### Multi AZ(Disaster Recovery)
 
