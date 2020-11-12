@@ -55,7 +55,60 @@ Read Replicas help us to scale our reads. An application may need to scale out r
 
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/MULTI_AZ.png" width="50%" height="50%"/>
 
+#### RDS Encryption and security
 
++ At rest encryption
+  + Possibility to encrypt the master and read replicas with AWS KMS - AES-256 Encryption
+  + Encryption has to be defined at launch time
+  + **If master is not encrypted, read replicas will also not be encrypted**
+  + Transparent data encryption - TDE is available for ORACLE and SQL server.
++ In-Flight Encryption
+  + SSL certificates to encrypt data to RDS in flight
+  + Provide SSL options with trust certificate when connecting to database
+  + To enforce SSL 
+    + POSTGRE SQL - rds.force_ssl = 1 in AWS RDS console - parameter groups
+    + MYSQL - Within the DB : GRANT USAGE ON *.* TO 'mysqluser'@'%' REQUIRE SSL;
++ Encryption operations
+  + Encrypting RDS backups
+    + Snapshots of un encrypted RDS databases are un encrypted
+    + Snapshots of encrypted RDS databases are encrypted
+    + We can copy snaphot of an un encrypted database to an encrypted one
+  + Encrypt an Un Encrypted database
+    + Create a snapshot of un encrypted database
+    + Copy the snapshot and enable encryption for the snapshot
+    + Restore the database from the encrypted snapshot
+    + Migrate applications to the new database and delete the old database
+    
+#### RDS Security - Network and IAM
++ Network Security 
+  + RDS databases are usually deployed within a private subnet not a public one
+  + The security works by leveraging security groups which controls what ips or security groups can communicate to the database
++ Access Management
+  + IAM policies help control who can manage AWS RDS(create/delete database and read replicas) through the RDS API
+  + Traditional username and password is used to login to datbase
+  + IAM based database authentication can be used to login to RDS mySQL and POSTGRE SQL
+    + We do not need a password for this, instead we get an authentication token through IAM and RDS API calls.
+    + The token has a life of 15 minutes
+    + Benefits - a) Network in/out must be encrypted using SSL b) Users are centrally managed in IAM instead of within DB c) IAM roles and EC2 instance profiles
+      can be leveraged for easy integration
+    + So the EC2 which calls the RDS db will have an IAM role which it will use to call RDS service to get a 15 min valid token. Then it will call the DB using
+      that token.
+    + <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/RDS_SEC.png" width="50%" height="50%"/>
+      
+###### RDS Security important points : 
++ Encryption at rest 
+  + It is done when we first create the DB instance
+  + unencrypted DB => snapshot => copy as encrypted => create DB from snapshot
++ Our Responsibility
+  + Check IP / Ports / Security Group inbound rules in DBs SG
+  + In-database user creation and permissions or manage through IAM for POSTGRE an MYSQL
+  + Create database with or without public access(in public or private subnets)
+  + Ensure parameter groups or DB is configured to allow SSL connections
++ AWS Responsibility
+  + NO SSH access
+  + No manual DB or OS patching
+  + No way to audit underlying instance
+  
 
 
 
