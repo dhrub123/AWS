@@ -4,6 +4,8 @@ RDS stands for relational database service. It is a managed database service fir
 It allows us to create databases in the cloud that are managed by AWS and supports various DB engines like Postgres, MySQL, MariaDB, Oracle, Microsoft SQL Server 
 and Aurora(This is a AWS proprietary database).
 
+Got to RDS Servvice > Database tab > Create database > Standard Create or Easy create , Engine types - Aurora(not free tier), MySQL, POSTGRE, Oracle, Microsoft SQL Server, MariaDB. We can select Mysql, Templates - Production, Dev/Test or Free Tier(This comes with values set up for us), Settings - DB name or DB Instance identifier, credentials - master username and password, DB instance size - instance class(standard, memory optimized or burstable), Storage - type amd allocation size, we can also enable storage autoscaling, Availabilty and Durability - Multi AZ, Connectivity - VPC and Publicly Accesible - Yes or No and Security Group, Backups - retention period, Maintenance - upgrade and window, Deletion protection - if we enable this , we will not be able to delete without disabling this first.
+
 #### Advantages of RDS vs deploying Database on EC2
 
 RDS is a managed service and so many addon services are provided by AWS on top of the database.
