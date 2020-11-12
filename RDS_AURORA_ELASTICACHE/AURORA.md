@@ -102,7 +102,6 @@ There are 2 ways to have Global Aurora across multiple regions.
 
 + RDS > Create Database - Standard Create > Aurora(MySQL or POSTGRE SQL) >  We can choose version and database region(Regional or Global) - Database Features 
   (One writer multiple reader or One writer multiple reader parallel query or Multiple writers or Serverless) - Templates(Production or Dev Test) - Settings 
-  -> DB Cluster Identifier, master username and password - DB Instance size - Availability and Durability(Multi-AZ : Read Replica in a different AZ) 
-  - Connectivity -> VPC , publicly accessible ? , security group - Additional settings -> Backups, Encryption, Backtrack, Monitoring - Maintenance 
-  - Deletion Protection. So once created, we have a writer and a reader endpoint. We can also add readers and add auto scaling.
-  - 
+  -> DB Cluster Identifier, master username and password - DB Instance size - Availability and Durability(Multi-AZ : Read Replica in a different AZ) - Connectivity -> VPC , 
+  publicly accessible ? , security group - Additional settings -> Backups, Encryption, Backtrack, Monitoring - Maintenance - Deletion Protection. So once created, we have 
+  a writer and a reader endpoint. We can also add readers and add auto scaling.
