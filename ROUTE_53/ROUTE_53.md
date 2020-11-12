@@ -68,9 +68,7 @@ by Amazon Web Services , not us. We want to expose our application as myapp.mydo
   
 |Simple Routing|Weighted Routing|Latency Routing Policy|
 |--------------|----------------|----------------------|
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/SIMPLE_ROUTING.png" width="50%" height="50%"/>
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/WEIGHTED_ROUTING.png" width="50%" height="50%"/>
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/LATENCY_ROUTING.png" width="50%" height="50%"/>|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/SIMPLE_ROUTING.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/WEIGHTED_ROUTING.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/LATENCY_ROUTING.png" width="50%" height="50%"/>|
 
 #### Handson
 Route 53 > Hosted Zones > for new account nothing. So go to Registered Domains > Register Domain(Choose Domain - 12$) and provide
