@@ -45,6 +45,7 @@ We get managed cache of Redis and Memcached using ELasticache the same way we ge
   + In Redis, remember two instances, one being the primary, the second being the replica and data persistence, backup and restore and similar to RDS.
   + Redis has more industrial RDS type features, multi AZ and revolves around replication using Read replicas
   + So Redis can also be used as a database.
+  + To get a always available redis cluster, use multi az feature, not read replicas
 + Memcached 
   + It is very different. It uses multiple-node for partitioning of data, which is called sharding. 
   + This is a non persistent cache, so if our Memcached node goes down, then the data is lost. There is no backup and restore features, and it's a multi-threaded 
