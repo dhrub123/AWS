@@ -54,6 +54,7 @@ Read Replicas help us to scale our reads. An application may need to scale out r
 + No manual intervention in apps even in case of failure
 + Not used for scaling, the standby db is just for standby, no one can read or write to it.
 + Read replicas can also be setup as Multi AZ for disaster recovery
++ No need to update connection string
 
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/MULTI_AZ.png" width="50%" height="50%"/>
 
@@ -63,7 +64,7 @@ Read Replicas help us to scale our reads. An application may need to scale out r
   + Possibility to encrypt the master and read replicas with AWS KMS - AES-256 Encryption
   + Encryption has to be defined at launch time
   + **If master is not encrypted, read replicas will also not be encrypted**
-  + Transparent data encryption - TDE is available for ORACLE and SQL server.
+  + Transparent data encryption - TDE is available for ORACLE and SQL Server DB , not mySQL or POSTGRE.
 + In-Flight Encryption
   + SSL certificates to encrypt data to RDS in flight
   + Provide SSL options with trust certificate when connecting to database
@@ -110,6 +111,11 @@ Read Replicas help us to scale our reads. An application may need to scale out r
   + NO SSH access
   + No manual DB or OS patching
   + No way to audit underlying instance
+  
+#### Important points
++ To ensure a database in another region in case of disaster use Aurora Global
++ To het a Highly Available database with DR strategy insulating it from Regional Outage, create a read replica in another region and enable MULTI AZ on main
+  database.
   
 
 
