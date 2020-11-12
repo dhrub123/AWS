@@ -40,6 +40,38 @@ web browser will just look internally, and not ask Route 53 again. So after this
 
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/DNS_TTL.png" width="50%" height="50%"/>
 
+#### CName vs Alias
+
+If you have an AWS Resource like a Load Balancer or CloudFront, it will expose a AWS hostname like lb1-1234.us-east-two.elb.amazonaws.com. This URL is controlled
+by Amazon Web Services , not us. We want to expose our application as myapp.mydomain.com and point it to the Load Balancer. In this case we need a CNAME.
+
++ CNAMEs point a hostname to any other hostname for example, app.mydomain.com to blabla.anything.com. But **CNAME only works for non root domain** like 
+  something.mydomain.com. , not just mydomain.com.
++ So we have Alias records which are very similar to CNAME but **they point a hostname to an AWS Resource** like app.mydomain.com to blabla.amazonaws.com. In this
+  instance, it has to point to an AWS Resource, specifically, whereas CNAME can point to anything. **They work for both root domain and non root domain.**  Alias
+  records are free of charge and have capability for native health checks. 
++ Things to remeber : if we have a root domain then you have to use an Alias , If it's a non root domain, we can use either, and usually it's always going to be 
+  an Alias anyway, because we point to an AWS Resource which will be free of charge and better.
++ CNAME is paid and Alias is free
++ In case of Alias, we can evaluate health directly by pointing to healthcheck URL of load balancer.
+  
+#### Routing Policies
+
++ Simple routing policy
+  + Web browser wants to know where's foo.example.com and route 53 will reply, it is an A record and the IP is 11.22.33.44. We use this when we need to redirect
+    to a single resource. 
+  + But we cannot attach health checks to a simple routing policy.
+  + We can return multiple values to a client, in which case the client sees all the values and will choose a value at random to use.
++ Weighted routing policy
+  + 
+  
+  
+|Simple Routing|Weighted Routing|Latency Routing Policy|
+|--------------|----------------|----------------------|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/SIMPLE_ROUTING.png" width="50%" height="50%"/>
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/WEIGHTED_ROUTING.png" width="50%" height="50%"/>
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/LATENCY_ROUTING.png" width="50%" height="50%"/>|
+
 #### Handson
 Route 53 > Hosted Zones > for new account nothing. So go to Registered Domains > Register Domain(Choose Domain - 12$) and provide
 Details  and enable Privacy Protection. It may take an hour to get ready. We can also Transer Domain. Now we go to Hosted Zones > The domain shows up. Click
@@ -47,3 +79,9 @@ on the domain and start creating records. We will create a Record Set, give name
 check that it works ? we do ```nslookup www.abc.com``` in windows and ```dig www.abc.com``` in macos and the address should be shown as the ip adress provided earlier. The TTL is also shown as output of dig command. IF we repeat dig command, we will see TTL decreasing.
 
 We now create few instances in different regions. Then create an internet facing application load balancer(ELB is region scoped) and add the instance in the load balancer region to the load balancer. Now in the A Record, we created earlier, we will give the ip adress of the instance in ireland and a TTL value. Now if we click on www.abc.com, we will be routed to our EC2 instance in Ireland. No, if we change A Record to point to instance in US, that will be effective after the TTl time because the browser will not make a DNS rquest if TTL has not expired. 
+
+Now we delete the A Record and create a CNAME record out of sample.abc.com and copy the load balancer hostname to the value of CNAME and give TTL value. So if we click on www.sample.abc.com, we will be routed to the load balancer in ireland which will point to the EC2 instance behind it. We can also create an Alias and give it a name alias.abc.com. Alias is more efficient here because we are pointing to an AWS resouce, the load balancer and copy the load balancer hsot name to the value. This will result in the same effect. We can also use the Alias as root by creating an alias called abc.com and giving it the target of alias.abc.com.
+This is result in this alias pointing to earlier alias which points to the load balancer and the ec2 behind it in ireland. We cannot create a CNAME with abc.com.
+
+If we create an A record and add one IP adress, this is simple routing. We can also add multiple IP adresses in separate lines. Then all the ip adresses will be returned and the web browser will choose between the IP adresses. This is an example of client side browser load balancing. dig command will return multiple
+entries. 
