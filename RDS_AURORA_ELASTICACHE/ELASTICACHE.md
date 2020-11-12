@@ -20,7 +20,7 @@ We get managed cache of Redis and Memcached using ELasticache the same way we ge
   not see a thing. But sometimes our application requests data, and it doesn't exist in cache. This is a cache miss. So when we get a cache miss, our application
   needs to go ahead and query the database, and write the result back to the cache. So if another application, or the same application will ask for the same 
   query, it will be cache hit. So the cache just caches data and help relieve the load in RDS, usually the read load, definitely. And the cache must also come 
-  up with an invalidation strategy, so that only the most current and most relevant data is in our cache.
+  up with an invalidation strategy, so that only the most current and most relevant data is in our cache. This pattern is also called lazy loading.
   
   <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/DB_CACHE.png" width="50%" height="50%"/>
   
@@ -44,9 +44,40 @@ We get managed cache of Redis and Memcached using ELasticache the same way we ge
     stopping it, and this is available to us because of AOF persistence. So we can backup, and restore our Redis clusters. 
   + In Redis, remember two instances, one being the primary, the second being the replica and data persistence, backup and restore and similar to RDS.
   + Redis has more industrial RDS type features, multi AZ and revolves around replication using Read replicas
+  + So Redis can also be used as a database.
 + Memcached 
   + It is very different. It uses multiple-node for partitioning of data, which is called sharding. 
   + This is a non persistent cache, so if our Memcached node goes down, then the data is lost. There is no backup and restore features, and it's a multi-threaded 
     architecture. So Memcached is around sharding. A part of the cache is going to be on the first shard, and another part of the cache is going to be on the 
     second shard, and each shard is a Memcached node.
   + Memcached is a pure cache that lives in memory without any backup and restore, no persistence, multi-threaded architecture and revolves around Sharding.
+
+#### Elasticache Hands On
++ Go to Elasticache service > Cluster Engine (Memcached or Redis(Cluster Mode)) - Redis Settings(name, desc, port, parameter group, read replica) - Advanced Redis
+  Settings(VPC, Subnet, Security - Encryption at rest and transit(Redis Auth generates token which is used by service to login to redis), Backups, maintenance) 
+  > Create
++ We then use the primary endpoint for using it in App
+
+#### Elasticache Security
+
++ All caches in ElastiCache support SSL in flight encryption 
++ **They do not support IAM authentication.**
++ IAM policies on ElastiCache are only used for AWS API-level security which includes creating a cluster, deleting a cluster, updating the configurations etc.
++ Redis now has authentication and it's called Redis AUTH. We can create something called a password or a token when we create a Redis cluster. This is an extra 
+  level of security for your cache on top of security groups. So any client that does not have this password or this token will not be able to connect to our 
+  Redis cluster and will be rejected. This is called Redis AUTH.
++ By default, Redis does not have any AUTH and anything or anyone can connect to our Redis cluster.
++ So it is important to use security groups as an extra level of security for our cache to ensure that only the networks we have authorized can access our 
+  Redis cluster.
++ From Memcached, there is SASL-based authentication
++ EC2 clients for example or applications running on EC2 are running inside of an EC2 security group and they want to connect to our Redis cluster cache
+  and therefore there is going to be a Redis security group around the cache and we are going to make sure that the Redis security group allows the 
+  EC2 security group in. And also our clients will be using SSL encryption for encryption of data in transit. And as an extra level of security for Redis, 
+  we can enable Redis AUTH to make sure that the EC2 clients will have the right password before connecting to our Redis cache.
+  
+#### Elasticache patterns
+
+There are three patterns.
++ **Lazy Loading** - We read all the data and once all the data that has been read they are automatically cached. Some data can become stale in the cache.
++ **Write Through** - We add or update data in the cache when it is written to a database, in this case we have no stale data.
++ **Session Store** - We can store temporary session data in the cache. We can use a TTL feature on top of it to expire data in your Session Store.
