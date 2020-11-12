@@ -18,3 +18,18 @@ We can also configure alerts.
 Configure Alerts > Actual Costs > Alert Threshold (Percentage of Budgeted Amount) - Provide email id.
 
 To find service charges for a month, we have to look under Billing > Bills > Find Month > Select Month > Service Charge
+
+#### Important ports
+
++ Important ports:
+  + FTP: 21
+  + SSH: 22
+  + SFTP: 22 (same as SSH)
+  + HTTP: 80
+  + HTTPS: 443 
+  + RDS Database Ports
+    + PostgreSQL: 5432
+    + MySQL and MariaDB: 3306
+    + Oracle RDS: 1521
+    + MSSQL Server: 1433
+    + Aurora: 5432 (if PostgreSQL compatible) or 3306 (if MySQL compatible)
