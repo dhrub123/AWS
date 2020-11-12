@@ -96,7 +96,7 @@ There are 2 ways to have Global Aurora across multiple regions.
     which will perform some replication with up to 1 seconds lag, and this is asynchronous replication. Our applications in eu-west-1 can directly read from 
     this database and perform read only workloads.
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/AURORA_GLOBALAUR.png" width="50%" height="50%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/RDS_AURORA_ELASTICACHE/images/AURORA_GLOBAL.png" width="50%" height="50%"/>
 
 #### Handson
 
