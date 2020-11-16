@@ -63,8 +63,16 @@ by Amazon Web Services , not us. We want to expose our application as myapp.mydo
   + But we cannot attach health checks to a simple routing policy.
   + We can return multiple values to a client, in which case the client sees all the values and will choose a value at random to use.
 + Weighted routing policy
-  + 
-  
+  + Weighted routing policy controls the percentage of the requests that will go to specific endpoints. We have Route 53, and we're going to assign different IP
+    addresses, maybe linked to each of two instances, and weights like 70, 20, and 10. The sum does not have to be 100. Whatever weight you put, whatever the sum
+    is, the average will be calculated and a percentage will be derived from it. So Route 53 will send 70% of the answers back from one EC2 instance, 20% of the
+    answer back from the second one and 10% of the answer back to the third one. So our clients will send 70% of the traffic to the first instance, 20% of the 
+    traffic to the second instance and 10% of the traffic to the last instance. SO different weights are assigned to different parts. So for example, to deploy a 
+    new application version and you wanted to test only 1% of the traffic on this new app version for example, we can do this with this weighted policy. 
+  + We can use this to split traffic between two regions and this is super quick because you can also associate this with health checks, so if one EC2 instance 
+    is not working properly, no traffic will be sent to it.
++ Latency routing policy
+  + This is the most useful routing policy.
   
 |Simple Routing|Weighted Routing|Latency Routing Policy|
 |--------------|----------------|----------------------|
@@ -83,3 +91,5 @@ This is result in this alias pointing to earlier alias which points to the load 
 
 If we create an A record and add one IP adress, this is simple routing. We can also add multiple IP adresses in separate lines. Then all the ip adresses will be returned and the web browser will choose between the IP adresses. This is an example of client side browser load balancing. dig command will return multiple
 entries. 
+
+To achieve weighted routing, we have to do the following. We create an A record with www.weighted.abc.com and give value as our ireland ip and select routing policy as weighted and define wiught for example 70 and ID say IRELAND. We create another A record with www.weighted.abc.com and give value as our US ip and select routing policy as weighted and define weight for example 20 and ID say US. Now we see there are 2 A records created for www.weighted.abc.com and their weight and id is displayed under respective columns. We can create another A record for our tokyo ip and give it a weight of 10. So when we first hit www.weighted.abc.com, we are routed to any of the instances in US, IR or TOKYO and if we try to reach the URL again, we will not be routed to a new instance until we are past the TTL. But we have 70 percent chance of landing in IR, 20 percent chance of landing in US and 10 percent chance of landing in TOKYO. The dig command is also going to give us back only one IP so no one is aware of this weighted policy.
