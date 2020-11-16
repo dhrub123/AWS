@@ -72,7 +72,12 @@ by Amazon Web Services , not us. We want to expose our application as myapp.mydo
   + We can use this to split traffic between two regions and this is super quick because you can also associate this with health checks, so if one EC2 instance 
     is not working properly, no traffic will be sent to it.
 + Latency routing policy
-  + This is the most useful routing policy.
+  + This is the most useful routing policy. Latency, as this name indicates, will redirect the user to the server that has the least latency. That's super 
+    helpful when latency for the users is your priority. And latency is going to be evaluated in terms of the user directly to the AWS region. That means that if 
+    a user is in Germany, If the us-east-1a, for example, region is the least latency for that user, then that's where it is going to be redirected. We have two 
+    EC2 instances, one on the west of the United States and one in Sydney in Australia. And we have users all around the world. Based on the Latency Routing 
+    Policy, the four users on the left-hand side of the map will be redirected to the US, while users on the right-hand side of the map will be redirected to 
+    Australia.
   
 |Simple Routing|Weighted Routing|Latency Routing Policy|
 |--------------|----------------|----------------------|
@@ -93,3 +98,5 @@ If we create an A record and add one IP adress, this is simple routing. We can a
 entries. 
 
 To achieve weighted routing, we have to do the following. We create an A record with www.weighted.abc.com and give value as our ireland ip and select routing policy as weighted and define wiught for example 70 and ID say IRELAND. We create another A record with www.weighted.abc.com and give value as our US ip and select routing policy as weighted and define weight for example 20 and ID say US. Now we see there are 2 A records created for www.weighted.abc.com and their weight and id is displayed under respective columns. We can create another A record for our tokyo ip and give it a weight of 10. So when we first hit www.weighted.abc.com, we are routed to any of the instances in US, IR or TOKYO and if we try to reach the URL again, we will not be routed to a new instance until we are past the TTL. But we have 70 percent chance of landing in IR, 20 percent chance of landing in US and 10 percent chance of landing in TOKYO. The dig command is also going to give us back only one IP so no one is aware of this weighted policy.
+
+To achieve latency routing, we again have to create multiple A records with routing policy as latency and give ip for the various ec2 instances, their ip and their id. Now the routing happens based on latency.
