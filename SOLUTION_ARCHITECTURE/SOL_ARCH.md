@@ -1,6 +1,6 @@
 ## CLASSIC SOLUTION ARCHITECTURE
 
-#### UseCase1 : WhatIsTheTime.com
+#### UseCase1 Stateless: WhatIsTheTime.com
 
 WhatIsTheTime.com allows people to know what time it is. We do not need a database and each instance, each server knows what time it is, and we want to start small. We're willing to accept downtime now 
 but when our app will get more and more popular,  we'll need to scale vertically and horizontally and remove downtime.
@@ -63,3 +63,68 @@ An Well-Architected Framework in AWS, has five pillars to it and they are cost, 
 + **reliability** -  we have seen how Route 53 can be used to basically reliably direct the traffic to the right EC2 instances, and maybe using multi-AZ for the ELB and multi-AZ for the ASG as well.
 + **security** - we can use security groups to basically link the load balancer to our instances reliably.
 + **operational excellence** - we can evolve from a very clunky, manual process all the way to having it fully automated with auto-scaling groups.
+
+####  Usecase2 Stateful: Myclothes.com
+
+MyClothes.com allows people to buy clothes online and there is a shopping cart when you navigate MyClothes.com and we're having hundreds of users at the same time so all these users are navigating the website and we wanna be able to 
+scale, maintain horizontal scalability and keep our application web tier as stateless as possible. So even though there is a state of shopping cart, we want to be able to scale our web application as easily as possible. This means
+that users should not lose their shopping cart while navigating our website. They will also have their details such as address in a database that we can store effectively and make accessible from anywhere.
+
++ 1) We have our user, Route 53, Multi AZ ELB, Auto Scaling group three AZ. Our application is accessing our ELB and our ELB says "Alright, you're gonna talk to this instance." And you create a shopping cart, and then the next request 
+	 is going to go not to the same instance but to another instance, so now the shopping cart is lost and the user says "Oh, there must just be a little bug, I'm going to try again." So he adds something into the shopping cart
+	 and it gets redirected to the third instance which doesn't have their shopping cart. So basically the user is going crazy.
++ 2) We can introduce Stickiness or Session Affinity and that's an ELB feature so we enable ELB Stickiness and now our user talks to our first instance, adds something into the shopping cart and then the second request goes
+	 to the same instance because of Stickiness and the third request also goes to the same instance and actually every request will go to the same instance because of Stickiness.This works really well but if an ec2 instance
+	 gets terminated for some reason, then we still lose our shopping cart.
++ 3) Now, let's look at the completely different approach and introduce user cookies. So instead of having the ec2 instances store the content of the shopping cart, let's say that the user is the one storing the shopping cart content 
+	 and so every time it connects to the load balancer, it basically is going to say "By the way, in my shopping cart I have all these things." and that's done through web cookies. So now if it talks to the first server,
+	 the second server or the third server, each server will know what the shopping cart content is because the user is the one sending the shopping cart content directly into our ec2 instances. We achieved statelessness because now 
+	 each ec2 instance doesn't need to know what happened before. The user will tell us what happened before but the HTTP request, they are getting heavier. So because we sent the shopping cart content in web cookies
+	 we're sending more and more data every time we add something into our shopping cart. Additionally, there is some level of security risk because the cookies, they can be altered by attackers maybe and so maybe our user may have
+	 a modified shopping cart all of a sudden. So, when we do have this kind of architecture make sure that your ec2 instances do validate the content of the user cookies. And then, the cookies overall, they can only be so big.
+	 They can only be less than four kilobytes total so there's only a little information you can store in the cookies. This is actually a pattern that many web application frameworks use.
++ 4) Let's introduce this concept of server session. So now, instead of sending a whole shopping carts in web cookies, we're just going to send a session ID and in the background, we're gonna have to maybe in the ElastiCache cluster
+	 and what will happened is that when we send a session ID, we're gonna talk to ec2 instance and say we're going to add this thing to the cart and so the ec2 instance will add the cart content into the ElastiCache and the ID to 
+	 retrieve this cart content is going to be a session ID. So when our user basically does the second request with the session ID and it goes to another ec2 instance, that other ec2 instance is able using that session ID
+	 to look up the content of the cart from ElastiCache and retrieve that session data. ElastiCache, is sub-millisecond performance so all these things happen really quickly. An alternative, by the way, for storing session data is 
+	 called DynamoDB. This pattern is more secure because now ElastiCache is a sourceof truth and no attackers can change what's in ElastiCache. 
++ 5) We wanna store user data in the database, we wanna store the user address. So again, we're gonna talk to our ec2 instance and this time, it's going to talk to an RDS instance. And RDS is for long term storage and so we can 
+	 store and retrieve user data such as address, name etc. directly by talking to RDS. And each of our instances can talk to RDS and we effectively get, again, some kind of Multi AZ stateless solution. 
++ 6) Now we have more and more users and we realized that most of the thing they do is they navigate the website. They do reads, they get product information, all that kind of stuff. So how do we scale reads? We can use an RDS 
+	 Master which takes the writes but we can also have RDS Read Replicas with some replication happening. And so anytime we read stuff, we can read from the Read Replica and we can have up to five Read Replicas in RDS.
+	 And it will allow us to scale the reads of our RDS database.
++ 7) There's an alternative pattern called Write Through where we use the cache and so the way it works is that our user talks to an ec2 instance. It looks in the cache and said, "Do you have this information?" If it doesn't have it 
+	 then it's going to read from RDS and put it back into ElastiCache so just this information is cached. And so the other ec2 instances, they're doing the same thing but this time when they talk to ElastiCache, they will have the information and they get a cache hit and so, they directly get the response right away because it's been cached. And so this pattern allows us to do less traffic on RDS. Basically, decrease the CPU usage on RDS and improve performance at the same time. But we need to do cache maintenance now and it's a bit more difficult and again this has to be done application side.
++ 8) Now, we have our application, it's scalable, it has many many reads but we wanna survive disasters. Our user talks to our Route 53 but now we have a Multi AZ ELB. Route 53 is already highly available. Our auto scaling group is 
+	 Multi AZ and then RDS, there's a Multi AZ feature. The other one is going to be a standby replica that can just takeover whenever there's a disaster. And ElastiCache also has a Multi AZ feature if you use Redis.
++ 9) Now for security groups, we wanna be super secure. So maybe we'll open HTTP, HTTPS traffic from anywhere on the ELB side. For the ec2 instance side, we just wanna restrict traffic coming from the load balancer and maybe for my 
+	 ElastiCache, we just wanna restrict traffic coming from the ec2 security group and from RDS, we want to restrict traffic coming directly from the ec2 security group.
+
+|Step 1|Step 2|
+|------|------|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U2_1.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U2_2.png" width="50%" height="50%"/>|
+
+
+|Step 3|Step4|
+|------|-----|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U2_3.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U2_4.png" width="50%" height="50%"/>|
+
+
+|Step 5|Step 6|
+|------|------|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U2_5.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U2_6.png" width="50%" height="50%"/>|
+
+|Step 7|Step8|
+|------|-----|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U2_7.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U2_8.png" width="50%" height="50%"/>|
+
+|Step 9|
+|------|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U2_9.png" width="50%" height="50%"/>|
+
+Architecture:
++ We have used ELB sticky sessions, web client for storing cookies and making our web app stateless or using maybe a session ID and a session cache for using ElastiCache and as an alternative, we can use DynamoDB.
++ We can also use ElastiCache to cache data from RDS in case of reads and we can use Multi AZ to be surviving disasters but we pay more in that case.
++ RDS, we can use it for storing user data, so more durable type of data. 
++ Read replicas can be used for scaling reads  and we pay more for that or we can also use ElastiCache and then we have Multi AZ for disaster recovery.
++ And on top of it, Tight Security for security groups referencing each other.
