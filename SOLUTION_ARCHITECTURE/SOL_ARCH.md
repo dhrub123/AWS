@@ -38,13 +38,23 @@ but when our app will get more and more popular,  we'll need to scale vertically
 	 be running at all time during the year. And so, by reserving instance, maybe for the minimum capacity of our auto-scaling group, then we're going to save a lot of cost in the future whereas the new instances 
 	 that get launched, maybe they're gonna be temporary, so on demand is fine, or if we're a bit crazy, we could even use spot instances for a less, less cost, but we might have the instances being terminated.
 
-|Step 1|Step 2|Step 3|Step4|
-|------|------|------|-----|
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_1.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_2.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_3.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_4.png" width="50%" height="50%"/>|
+|Step 1|Step 2|
+|------|------|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_1.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_2.png" width="50%" height="50%"/>|
 
-|Step 5|Step 6|Step 7|Step8|
-|------|------|------|-----|
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_5.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_6.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_7.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_8.png" width="50%" height="50%"/>|
+
+|Step 3|Step4|
+|------|-----|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_3.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_4.png" width="50%" height="50%"/>|
+
+
+|Step 5|Step 6|
+|------|------|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_5.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_6.png" width="50%" height="50%"/>|
+
+|Step 7|Step8|
+|------|-----|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_7.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_8.png" width="50%" height="50%"/>|
 
 
 An Well-Architected Framework in AWS, has five pillars to it and they are cost, performance, reliability, security, and operational excellence.
