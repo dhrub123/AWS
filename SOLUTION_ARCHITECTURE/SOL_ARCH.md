@@ -128,3 +128,86 @@ Architecture:
 + RDS, we can use it for storing user data, so more durable type of data. 
 + Read replicas can be used for scaling reads  and we pay more for that or we can also use ElastiCache and then we have Multi AZ for disaster recovery.
 + And on top of it, Tight Security for security groups referencing each other.
+
+####  Usecase3 Stateful: Wordpress.com
+
+Here we are trying to create a fully scalable WordPress website. We want to access that website and correctly display picture uploads. WordPress will store the pictures somewhere on some drive and then basically
+all your instances must access that data as well. Our user data, the blog content and everything should be stored in a MySQL database and we want this to scale globally.
++ 1) We create a layer that has RDS in the back end, its Multi AZ it's going to be kind of get through all of these 2 instances but what if I just wanna go and really scale up, maybe I want to replace this layer
+	 with Aurora MySQL and I can have Multi AZ, read replicas even global databases if I wanted to. Aurora scales better and is easier to upgrade.
++ 2) Now lets talk about storing images. So let's go back to the very simple solution architecture when we have one EC2 instance and it has one EBS volume attached to it. So it's in one AZ and so we're gonna get to
+	 our loaded answer and so our user wants to send an image to our loaded answer and that image makes it all the way through to EBS so the image is stored on EBS so now it works really well. We only have one EC2 instance
+	 and so it goes straight the the EBS Volume and we're happy. If we wanted to read that image, same thing, the image can be read from the EBS Volume and sent back to the user so very good, right? The problem arrives 
+	 when we start scaling so now we have two EC2 instances and two different AZ and each of these EC2 instances have their own EBS Volumes and so what happens is that if I send an image right here from this instance
+	 and it gets stored on that EBS Volume if I want to read that image maybe I'll make it this way and yes, I can read it or, very common mistake I can read that image and it will go here and here on the bottom 
+	 there is no image present and so because it's not the same EBS Volume and so here I won't be able to access my image. So the problem with EBS Volumes is that it works really well when you have one instance but when you 
+	 start scaling across multiple AZ or multiple instances then it's starting to become problematic. 
++ 3) So we can use EFS so let's use the exact same architecture but now we are recording in EFS Network File System Drive so EFS is NFS and so EFS basically creates ENI's for Elastic Network Interface and it creates these ENI's 
+	 into each AZ and this ENI can be used for all our EC2 instances to access our EFS drive and the really cool thing here is that the storage is shared between all the instances so if we send an image to the M5 instance 
+	 to the ENI, to EFS so the image is stored in EFS now if you wanna read the image, it goes all the way to the bottom and through the ENI and it's going to read on EFS and yes EFS has that image available so we can send it back 
+	 and so this is a very common way of scaling website storage across many different EC2 instances to allow them all to have access to the same files regardless of their availability zone and how many instances we have.
+
+|Step 1|Step 2|
+|------|------|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U3_1.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U3_2.png" width="50%" height="50%"/>|
+
+
+|Step 3|
+|------|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U3_3.png" width="50%" height="50%"/>|
+
+Architetcure:
++ Aurora Database has less operations and have multi AZ and read replicas
++ We have talked about storing data in EBS which works great when we're in a single instance application but it doesn't work really great when we have many.
++ So maybe we can use EFS then to have a distributed application across multi AZ.
++ Costing aspect - EBS is cheaper than EFS but we do get a lot of advantages by using EFS especially in distributed use cases
+
+#### Quick instantiation of applications
+
+We install and deploy this application onto EC2 instances to basically run websites, and so when you launch your full stack, It can take a lot of time to install applications, insert or recover data, configure everything and 
+then launch the application. How to speed things up. 
+
++ Golden AMI - A golden AMI means that you install your applications , you're OS dependencies etc, everything beforehand, and then you create an AMI from it and then for the future EC2 instances, you just launch them directly 
+  from the Golden AMI. The reason we do this is that we don't have to reinstall the applications , OS dependencies etc. We could just launch with everything already installed and ready to go, and that's the fastest way we can 
+  start up our EC2 instance. So golden AMI is very common pattern in the Cloud to have. 
++ Bootstrapping - We can also use user data to bootstrap our instances. Bootstrapping means basically configuring the instance when it first starts. And so bootstrapping can also be done to install application or OS dependency's etc.
+  But this is going to be very slow and we don't want each application to do the exact same thing the other one did if it can be repeated. But for dynamic configuration for example maybe retrieving the URL for our data base and the 
+  password etc. , We can use bootstrapping using the EC2 user data and so we can basically have a hybrid mix of a golden AMI.
++ We can also use Elastic Beanstalk. It uses the same principle of the hybrid, where we can configure an AMI and then we add on some user data.
++ For RDS databases we can restore from the snapshots and then the database will have the schemas and the data ready which is much better than may be running a big insert statement they will take forever to start RDS databases.
+  That may be a way to go be quicker when you want to retrieve data.
++ For EBS volumes we can restore from a Snapshot so we don't have to have a disc that's empty and not formatted, we can retrieve from a snapshot and the snapshot will already be formatted properly and have the data we need.
+
+#### Elastic Beanstalk
+
+In traditional architecture, there was Elastic Load Balancing, auto-scaling, Multi-AZ, a Database RDS,  a cache for the ElastiCache, and all these things we had to create manually.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/WEB_APP_ARCHITECTURE.png" width="50%" height="50%"/>
+
+If we have to deploy so many apps, Java, Go, Python, whatever languages you are using, even Docker. And we had every time to create that load balancer, to configure that auto scaling, and that RDS database, and on top of this,
+well, we need to deploy into several environments, such as DEV, TEST, and PROD, and maybe we want to have different versions at the same time. It will be a complete nightmare. As  a developer, you don't want to manage infrastructure.
+You just want to deploy code. You want to configure the databases, load balancers once and just be done with it. You want it to scale - You want your deployment to be valid for one instance, as well as for 100 instances. As a developer, 
+I want my code to run. I really don't care about the architecture. And I possibly want consistency across all my applications and environment. I want a one-stop shop to manage my stuff which is provided by Elastic BeanStalk.
+
++ Elastic BeanStalk is like a developer centric view, so you can deploy applications on AWS. It will leverage all the components we've seen before like EC2, ASG, ELB, RDS, etc. It's one view that's super easy to make sense of.
+  So, we'll see all the configuration and development. But we'll still have full control over how all these components get configured. 
++ Elastic BeanStalk is free, and you are going to pay only for the underlying instances. So, BeanStalk is a managed service. That means that the instance configuration, all of the operating system, will be handled by BeanStalk.
+  The deployment strategy, you can configure it, but again it will be performed by BeanStalk. And just the application code is your responsibility. We can always customize stuff. 
++ There's three architecture models for BeanStalk. 
+  + You have a single instance deployment, which is good for DEV. So, you'll have a whole environment, and it's going to be one instance.
+  + Then you have a load balancer and an auto-scaling group. That's great when you do production or pre-production for your web applications and you want to see how they react at scale.
+  + And then, if you just want to have ASG load balancers, it is great when you do non-web apps in production, such as your workers or other kind of models that don't need a load balancer or don't need to be accessible.
++ So, BeanStalk has three components.
+  + It has an an application version, so every time you upload new code, you'll get an application version. 
+  + It also has an environment name, so you're going to deploy your code to DEV, TEST, and PROD. And you're free to name your 
+    environments just the way you want, and have as many environments as you wish. You're going to deploy applications to your environments, and basically will be able to promote these application versions to the next environments.
+    So, We're going to create an application version, get it from DEV to TEST to PROD, etc. There's a rollback feature, as well, so we can roll back to a previous application version, which is quite handy. And we've got full control over
+    the life cycle of environments. So, the idea is that you create an application, and you create an environment or multiple environments, and then, you're going to upload a version and you're going to give it an alias, so, just a name that you want.
+  + And then, this alias, you will release it to environments.
++ So, what can we deploy in BeanStalk? Well, it has support for tons of platforms. Go, Java, Java Tomcat, .NET, Node, PHP, Python, Ruby, Docker - Single Container Docker, Multicontainer Docker, Preconfigured Docker, and if your platform is  
+  not supported, you can write your own custom platform.
+
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/EB.png" width="50%" height="50%"/>
+
+#### Elastic Beanstalk handson
+
