@@ -1,0 +1,21 @@
+<html>
+	<head>
+		<title>My First Webpage</title>
+	</head>
+	<body>
+		<h1> I love coffee </h1>
+		<p> Hello World </>
+	</body>
+
+	<img src="CORS.png" width=500/>	
+
+	<div id="tofetch"/>
+	<script>
+		var tofetch = document.getElementById("tofetch");
+		fetch('https://dhruba-bucket-cors.s3.amazonaws.com/extra-page.html').then((response) => {
+					return response.text();
+				}).then((html) => {
+					tofetch.innerHTML = html
+				});
+	</script>
+</html>
