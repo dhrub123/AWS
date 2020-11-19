@@ -94,10 +94,12 @@ We want to make a cloudfront distribution private
 		+ If I sign the URL, with my own IAM principal and then use my IAM key to sign this, then the person who has that URL has the same rights as me.
 		+ It has a limited lifetime
 		+ The client can access directly your S3 bucket directly using that pre-signed URL.
-		+ If your users are using directly against S3 and you want to distribute a file in S3 directly without using CloudFront, then pre-signed URL would be a great use case for it.
-	|Cloudfront signed URL|S3 Pre signed URL|
-	|---------------------|-----------------|
-	|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/CFSU.png" width="60%" height="60%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/S3PSU.png" width="60%" height="60%"/>|
+		+ If your users are using directly against S3 and you want to distribute a file in S3 directly without using CloudFront, then pre-signed URL 
+		  would be a great use case for it.
+		  
+|Cloudfront signed URL|S3 Pre signed URL|
+|---------------------|-----------------|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/CFSU.png" width="60%" height="60%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/S3PSU.png" width="60%" height="60%"/>|
 
 
 
