@@ -58,6 +58,13 @@
 		+ It's going to be read only so is going to help you with read performance.
 		+ It is great if you have dynamic content that needs to be available at low latency in a few regions.
 		+ This is for replication into select regions.
++ We are going to create a bucket and a cloudfront distribution in front of that bucket. We are also going to create an Origin Access Identity so this is a user of CloudFront that will be accessing our S3 bucket and we'll limit the S3 bucket 
+  to be only accessed using this identity/user. So effectively, we are ensuring that no one can access our S3 bucket except if they go through CloudFront. We can do this for many reasons like monitoring because maybe you have cookies,
+  maybe because of some policies, etc. So we create a bucket and upload some files. Then we go to cloudfront and create a distribution of type web. The origin domain name will be our bucket and we will give an id to the origin.
+  Then we can restrict bucket access and in that case we have to create n Origin access Identity and give it a name. Then we need to grant read permission of the S3 bucket to the OAI. We have more options and then we create the distribution
+  which takes about 10 minutes to get created. If we go to the origin s3 bucket and look at the bucket policy, we can see that a new policy has been automatically created for us which states that the OAI we created earlier
+  can get object from the bucket. We can update the policy to add a new rule to deny any requests coming from anything other than the OAI. Now for sometime cloudfront will keep redirecting us to the s3 bucket as the DNS takes some time to propagate properly. It is a common problem and not a bucket. We can temprarily make the files public in our S3 bucket. But once DNS propagation is complete and cloudfront stops redirecting to S3, we can make them private again and we will
+  be able to access the files from cloudfront.
 
 <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/CLOUDFRONT.png" width="60%" height="60%"/>
 
@@ -101,6 +108,73 @@ We want to make a cloudfront distribution private
 |---------------------|-----------------|
 |<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/CFSU.png" width="60%" height="60%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/S3PSU.png" width="60%" height="60%"/>|
 
+#### AWS Global Accelerator
+
++ The specific problem we are trying to solve here is that we have deployed an application and it's global and you've global users who want to access it directly. But our application is only deployed in one region.
+  For example here in India, I have deployed a public ALB. But my users are all over the world. They're in America, in Europe, in Australia.
++ As they access the application, they have to go over the public internet.And that can add a lot of latency due to many hops through the routers. 
++ These hops introduce a bit of risk because connection can get lost, they also add a little bit of latency, and they're not as direct as possible into our amazon infrastructure.
+  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/PROBLEM.png" width="60%" height="60%"/>
++ So we want to go as fast as possible through the AWS network to minimize latency. 
++ Unicast IP vs Anycast IP
+	+ Unicast IP : One server holds one IP address. So our clients when they talk to two servers, one has starting IP address  of 12 and the other one has a starting ip of 98. 
+	  If you refer to the IP address that begin with 12 , we will be sent to that particular server. And for the other one if you use the other IP , then we will go to the other server.
+	+ Anycast IP : All servers will hold the same IP address and the client will be routed to the nearest one. So our client has two servers and these two servers have the same IP. When our client when it tries to connect 
+	  to this Anycast IP, it will be sent to the server that is the closest to itself. 
++ Global Accelerator uses that Anycast IP concept to work.
+	+ We're able to leverage the AWS internal global network to route to our application.
+	+ We want to route to India and we have users all around the globe. Instead of sending it through the public internet in America, it's going to come to the closest edge location. And from edge location,
+	  it's going to go all the way straight to our ALB in India through the internal AWS network. Same for Australia, so it goes to closest edge location near to Australia and then it goes over the private AWS network to get to the ALB in India and same for Europe. 
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/SOLUTION.png" width="60%" height="60%"/>
+	+ We're going to use an Anycast IP and there's actually going to be 2 of those that are going to be created for your application and they're global.
+	+ The Anycast IP will send the traffic directly to the closest edge location of your users. 
+	+ The edge location will then send the traffic to you application, through the private AWS network which is much more stable, has less latency and so on.
+	+ It is unique because it really allows to give two static IP addresses all around the globe for the users for whatever application you may have. 
+	+ And right now I'm showing one ALB in one region but it could be global as well, it could be multiple ALBs in multiple regions.
+	+ It works with Elastic IP, EC2 instances, Application Load Balancer, Network Load Balancer and they can either be public or private.
+	+ There is consistent performance because we go over the network
+		+ We have intelligent routing to the lowest latency edge location and we'll have fast regional failover in case anything goes wrong.
+		+ There's no issue with client cache because the client doesn't cache anything. The IPs, the two Anycast IP we're using don't change.
+		+ It's internal AWS network to go after the edge location
+	+ We have health checks.
+		+ The Global Accelerator will perform a health check on your applications.
+		+ It will ensure that the application is global and if health check fails for one ALB and one region , then there is automated failover in less than one minute to a healthy end point.
+		+ Great for disaster recovery, thanks, to the health checks.
+	+ Security - It is appropriately secured
+		+ We only have two external IPs that needs to be whitelisted by your clients.
+		+ We get DDoS protection automatically through the Global Accelerator by AWS Shield.
++ Difference between global accelerator and cloudfront
+	+ Global Accelerator and CloudFront both use the same global network and they will both use edge locations all around the globe that AWS has created.
+	+ They both integrate with Shield for DDoS protection 
+	+ CloudFront 
+		+ Improve the performance for both cacheable content such as images and video
+		+ Dynamic content such as, API acceleration and dynamic site delivery
+		+ The content is going to be served from the edge locations. So once in a while the edge locations are going to fetch the content from the origin 
+		  but most of the time hopefully CloudFront will deliver cache content from the edges. So here the users are getting content from the edges.
+	+ Global Accelerator
+		+ It improves the performance of a wide range of applications over TCP or UDP.
+		+ The packets are being proxied from the edge locations to the applications running in two one or more AWS regions. So in that case, all the request still make it 
+		  to our application end. There is no caching available.
+		+ So it's a really good fit if you have non-HTTP uses cases, such as gaming, IoT or Voice over IP 
+		+ It's also really good if you have HTTP use cases that require static IP addresses globally.
+		+ You need to have deterministic and fast regional failover.
++ Go to global accelerator and you will be taken to Oregon(us-west-2), no matter the region. We are going to create a EC2 instance in US-east-1 with a httpd service showing some data. 
+  We can create another instance in mumbai. We do not need to associate key pairs with these instances because we will not be doing ssh into it. Then we create accelerator and we have to add
+  listeners(port and protocol - 80 and TCP). THen we have to add endpoint groups. We will have to give region and traffic dial(amount of traffic) and healthcheck. So we add 2 endpoint groups 
+  here - one for us-east-1 and one for mumbai(ap-south-1). The endpoint type can be ALB, NLB, EC2 or Elastic IP. So we specify our EC2 instance ID in endpoint info and add endpoint. Then we create the 
+  global accelerator. After the accelerato is created, we can see 2 static anycast ip adresses to access our application. We can use the accelerator DNS name to access our apps. If we access the DNS from india,
+  the EC2 in india will serve traffic and if we access from US, we will get the EC2 in us-east-1 serving traffic. If one of our ec2 instances are unhealthy, the failover to other region will be instant.
+  We will disable and delete the accelerator. We have a fixed fee of $ 0.025 for every full or partial hour until it is deleted and a data transfer fee depending on region and destination.
+
+#### Some questions
+
++ You are creating an application that is going to expose an HTTP REST API. There is a need to provide request routing rules at the HTTP level. Due to security requirements, your application can only be exposed through the use of two static 
+  IPs. How can you create a solution that validates these requirements?
+	+ Global Accelerator will provide us with the two static IP, and the ALB will provide use with the HTTP routing rules. So we will use Global Accelerator and ALB.
++ You are hosting highly dynamic content in Amazon S3 in us-east-1. Recently, there has been a need to make that data available with low latency in Singapore. What do you recommend using?
+	+ S3 CRR
++ You would like to provide your users access to hundreds of private files in your CloudFront distribution, which is fronting an HTTP web server behind an application load balancer. What should you use? 
+	+ Cloudfront signed cookies because they provide access to multiple files.
 
 
 
