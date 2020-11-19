@@ -26,20 +26,20 @@
   CloudFront distribution. For doing this, the client will send an HTTP request directly into CloudFront. And then the edge location will forward the request to your origin and that includes the query strings
   and the headers, and then your origin response to the edge location. The edge location will cache the response based on the cache settings we've defined and return the response back to our clients.
   The next time another client makes a similar request, the edge location will first look into the cache before forwarding the request to the origin.
-  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3/images/CF_HIGH.png" width="60%" height="60%"/>
+  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/CF_HIGH.png" width="60%" height="60%"/>
 + S3 as an origin - You have your origin, S3 buckets. And for example, you have an edge location in Los Angeles and some users want to read some data from there. So your edge location is going to fetch the data
   from your S3 buckets over the private AWS network and give you the results from that edge location. The idea here is that for the edge location of CloudFront to access your S3 buckets using an OAI
   or an origin access identity which is an IAM role for your CloudFront origin. And using that role, edge location is going to access your S3 buckets and the bucket policy is going to say yes, this role is accessible and yes,
   send the file to CloudFront. So this works as well for other edge locations for example, in Sao Paulo in Brazil, or Mumbai, or Melbourne. And so all around the world, your edge locations are going to serve cached content
   from your S3 buckets and so we can see how CloudFront can work as a CDN.
-  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3/images/CF_ORIGIN.png" width="60%" height="60%"/>
+  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/CF_ORIGIN.png" width="60%" height="60%"/>
 + ALB or EC2 as Origin - If we use an ALB or EC2 as an origin, the security changes. EC2 instances must be public because they must be publicly accessible from HTTP standpoint and we have our users all around the world.
   So they will access our edge location which will access our EC2 instances and as you can see, it traverses the security group. So the security group must allow the IPs of CloudFront edge locations into the EC2 instance.
   And for this, there is a list of public IP for edge locations that you can get and the security group must allow all these public IP of edge locations to allow CloudFront to fetch content from your EC2 instances.
   If we use an ALB as an origin, we have a security group for the ALB and the ALB must be public to be accessible by CloudFront. But the backend EC2 instances now can be private. And so in terms of security group 
   for the EC2 instances, EC2 allow the security group of the load balancer, And for the edge location, which are again, public locations, it needs to access your ALB through the public network. And so that means that 
   your security group for your ALB must allow the public IP of the edge locations ,the same public IP as we had from before. 
-  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3/images/ALB_ORIGIN.png" width="60%" height="60%"/>
+  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/ALB_ORIGIN.png" width="60%" height="60%"/>
 + Cloudfront for Geo Restriction - We can restrict who can access our distribution.
 	 + We can provide a white list so users from this list of approved countries can go to a CloudFront and access content.
 	 + We can provide blacklist, where the users from these countries are not allowed to access our distribution.
@@ -59,7 +59,7 @@
 		+ It is great if you have dynamic content that needs to be available at low latency in a few regions.
 		+ This is for replication into select regions.
 
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3/images/CLOUDFRONT.png" width="60%" height="60%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/CLOUDFRONT.png" width="60%" height="60%"/>
 
 #### Cloudfront signed URL
 
@@ -80,7 +80,7 @@ We want to make a cloudfront distribution private
   cannot be accessed by anything else, but CloudFront, but we still want to be able to give people access to their objects through CloudFronts. So we have our clients and our client is going to authorize and authenticate 
   to our application and we have to code that application. And our application will use the AWS SDK to generate a signed URL directly from CloudFront. It will return the signed URL to the clients and then the client will be able 
   to use that signed URL to get the data and files and objects or whatever he needs directly from CloudFront. This works for signed URL, but this also works for signed cookie obviously.
-  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3/images/CFSURL.png" width="60%" height="60%"/>
+  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/CFSURL.png" width="60%" height="60%"/>
 + Difference between CloudFront signed URL or an S3 pre-signed URL
 	+ CloudFront signed URL 
 		+ It allows access to a path no matter the origin, so signed URL works not just for S3 as an origin, but HTTP and other backend as well.
@@ -97,7 +97,7 @@ We want to make a cloudfront distribution private
 		+ If your users are using directly against S3 and you want to distribute a file in S3 directly without using CloudFront, then pre-signed URL would be a great use case for it.
 	|Cloudfront signed URL|S3 Pre signed URL|
 	|---------------------|-----------------|
-	|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3/images/CFSU.png" width="60%" height="60%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3/images/S3PSU.png" width="60%" height="60%"/>|
+	|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/CFSU.png" width="60%" height="60%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/S3_STORAGE/images/S3PSU.png" width="60%" height="60%"/>|
 
 
 
