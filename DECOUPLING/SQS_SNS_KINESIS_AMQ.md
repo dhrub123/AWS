@@ -66,7 +66,7 @@
   	+ So we need to threshold , how many times the message can go back to the queue. After that threshold, the message is sent to a dead letter queue for further analysis.
   	+ The threshold is called MxximumReceives and is defined within DeadLetterQueue settings in a queue.
   	+ A deadletter queue is useful for debugging and messages which expire in a DLQ are permanently lost. So they should be analysed before they expire.
-  	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/DECOUPLING/images/DLQ.png" width="60%" height="60%"/>
+  	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/DECOUPLING/images/DLQ.png" width="30%" height="10%"/>
 + Delay Queue - Here the message is not send by consumers , as soon as it is sent by producers to queue. Instead there is a delay upto 15 minutes before the consumers can see the messages.
 	+ The delay can be set at the queue level using the Delivery Delay setting. The default is 0 which means the consumers can see the messages right away.
 	+ The delay at the queue level can be overridden during send using the DelaySeconds parameter.
