@@ -371,5 +371,170 @@ We would like our clients to be able to invoke the lambda functions in some way.
 + Finally, SAM allows you to quickly deploy your Lambda functions using the integration with Code Deploy.
 + SAM at a high level is a framework to manage your applications, your serverless applications, and it allows you to deploy your Lambda functions, and DynamoDB tables, API Gateway, and Cognito User Pools.
 
+#### Serverless Architectures
+
++ Architecture 1
+	+ We're going to create a mobile application called MyTodoList and we have the following requirements.
+		+ We want to expose a REST API that has HTTPS endpoints.
+		+ We want to be serverless architecture
+		+ We want the users to be able to directly interact with their own folder in S3 to manage their data if they want to.
+		+ Users should be able to also authenticate through a managed serverless service. 
+		+ And finally, users can write and read to-dos, but they mostly read them, so maybe there's something to do around performance here.
+		+ The database layer should scale, and should have some really high read throughputs.
+	+ So we have a mobile client, and we talked about doing a rest HTTPS thing, so let's use Amazon API Gateway for this. In a classic serverless API fashion, API Gateway will invoke a lambda function
+	  which basically allows us to scale and use serverless infrastructure. Amazon Lambda needs to be able to store and read to-do from a database. A database that scales really well that is serverless is DynamoDB.
+	  So here, we have DynamoDB as our backend. Now we said there was going to be also some kind of authentication layer going on so, for this we can use a serverless technology such as Amazon Cognito.
+	  So our mobile client can connect and authenticate to Cognito and then API Gateway along the way will verify the authentication with Cognito.
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A1_1.png" width="60%" height="60%"/>
+	+ If you want to give a user's access to Amazon S3 Location, we have our mobile clients, that authenticates to Amazon Cognito, and Cognito that can generate temporary credentials for us using AWS STS and 
+	  return these credentials to our mobile client. These credentials allow our mobile client to store and retrieve files in Amazon S3, and basically access their own little space in S3.
+	  The wrong answer is to store AWS user credentials on your mobile clients. You want to really use Amazon Cognito, STS, and then Amazon S3 with temporary credentials.
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A1_2.png" width="60%" height="60%"/>
+	+ Next our app is starting to scale. We're starting to get more users and it turns out that we, by looking at the patterns, figure out that we have a very high read throughput, so we have many RCUs and the to-dos 
+	  don't really change much, they don't get edited very often. So how can we change this architecture, to improve the read throughput and decrease maybe the cost overall. What we can do is use DAX as a caching layer,
+	  so just before DynamoDB, we'll use DynamoDB DAX and this will basically have a caching layer and because we're doing so many reads, now the reads will be cached in DAX, and so DynamoDB won't need as much read 
+	  capacity units, maybe will scale better, because so many reads are cached and this is a great way, overall, to keep on improving our architecture in a serverless fashion.
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A1_3_1.png" width="60%" height="60%"/>
+	  Now there could be another way of doing caching, maybe you want to use DAX, but maybe also we want to start caching the responses at the Amazon API Gateway level.This is also a very good one if you think
+	  that the answers never really change, and that you can start caching a few responses for some few API routes.
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A1_3_2.png" width="60%" height="60%"/>
+	+ So this is the classic serverless REST API architecture, basically leveraging HTTPS, API Gateway, Lambda and DynamoDB and Cognito to generate temporary credentials with STS which gives us access to an extra bucket
+	  with a restricted policy. We can use the exact same app pattern using Cognito, so our app can access maybe DynamoDB or Lambda directly or whatever. Caching the reads on DynamoDB can be done using DAX,
+	  its a very easy way to enable and you can bring not only performance improvement, but also cost reduction, and caching the REST request can be done at the API Gateway level, if we have very static responses.
+	  Security, finally, for the entire thing can be done with Cognito, and Cognito is directly integrated with the API Gateway.
++ Architecture 2
+	+ Now we have a serverless hosted website, called myblog.com.
+		+ Our website should scale globally, and we rarely write blogs, we often read blogs.
+		+ So our blogs is seen by hundreds of thousands of people online, and we rarely add blogs, maybe once a day, once a week, but most of the time these blogs are being read.
+		+ And so most of my website is going to be purely static files and maybe a little bit of my website is going to be a dynamic REST API.
+		+ I want to implement caching where possible to save cost and save latency, and have a great user experience.
+		+ And any new users that subscribes to my website, to my blog, I really want them to receive a warm welcome Email, and this should be serverless.
+		+ And any photo uploaded to the blog, I also want to have a thumbnail being generated, also serverless because I really like serverless.
+	+ We want to serve content, it's static and it's global. So we have our client, and our static content may be stored in Amazon S3.
+	+ So how do we expose that bucket globally ? The Amazon S3 bucket is in specific region. We can use Amazon CloudFront, and Amazon CloudFront is a global distribution CDN, and so basically our clients is going to
+	  interact with edge locations on Amazon CloudFront, and it's going to cache data coming straight from Amazon S3.
+	+ In terms of security, we have the client it's interacting with CloudFront, and it's a global distribution still, but now, we're going to use OAI, or an Origin Access Identity from CloudFront to S3.
+	  Basically saying, okay, we're going to add a bucket policy, and the bucket policy on S3 will say, you only authorize the OAI, so CloudFront, to read, the rest cannot. And so that secures it, because now our clients
+	  they cannot go directly to the S3 bucket to get the content. They have to go through CloudFront, and in this way we've secured our infrastructure.
+	+ How do we add a public serverless REST API? Well for this we'll have a REST HTTPS cloud talking to Amazon API Gateway, invoking a Lambda function, maybe querying and reading from DynamoDB, and because we have so many reads,
+	  maybe DAX is a great caching layer we could use. If we're going global, maybe we could be leveraging DynamoDB global databases to reduce the latencies in part of the world. That also could be a really good way of maybe 
+	  speeding up our infrastructure and our architecture.
+	+ Now let's talk about the user welcome email flow. When a user subscribes, I want them to be having an email saying, hello, how are you? So for this, maybe in DynamoDB we want to enable streams of changes, so we'll have 
+	  DynamoDB stream being created, and that DynamoDB stream will invoke a Lambda function. That Lambda function is going to be very special, it's going to have an IAM role, which allows us to use Amazon SES.
+	  Amazon SES is Amazon Simple Email Service, so SES, and it basically allows us to send emails. So here our Amazon Lambda function can use the AWS SDK to send emails from Amazon SES, and here we go, we have a basically 
+	  serverless user welcome email flow, and really simple, no infrastructure to manage, it just works and scales really really well.
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A2_1.png" width="60%" height="60%"/>
+	+ If users upload images, we want thumbnails to be created, so our client, is going to maybe upload to our S3 bucket directly, or maybe we again have an OAI in a CloudFront distribution. In which case our client will 
+	  upload photos to CloudFront, and CloudFront will forward them onto the Amazon S3 bucket, and this is called S3 transfer acceleration. So either directly to S3, or using transfer acceleration, and then 
+	  whenever a file is added to S3 it's going to trigger a Lambda function, so Lambda can be triggered by S3, and Lambda will be creating a thumbnail and putting that thumbnail into an S3 bucket, 
+	  could be a different bucket for example. And just to show you it's possible, Amazon S3 also has triggers to SQS and SNS. So Amazon S3 can invoke either Lambda, SQS, or SNS.
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A2_2.png" width="60%" height="60%"/>
+	+ This architecture is serverless, it's all scaling globally. Static content being distributed using CloudFront with S3. We leveraged a global DynamoDB table to serve the data globally. We could have used also 
+	  Aurora Global Tables, but in this case it wouldn't have been such serverless, it would have been provisioned Aurora. We could also enable DynamoDB streams, basically these streams should tell us about changes
+	  to our user tables and then trigger a Lambda function, and that Lambda function had a IAM role attached to it, so it could use SES or Simple Email Service, and this was just to send emails in a serverless way.
+	  And S3 we've seen that it could trigger SQS, SNS, Lambda to be notify of events.
++ Architecture 3
+	+ Micro services are not exactly the server-less. We want to switch to a micro service architecture and many services will interact with each other maybe using a REST API.
+	+ Each architecture for each micro service may vary in form and shape.
+	+ We want to use a micro service architecture for the reason that we want to have leaner development lifecycle for each service.
+	+ We want each service to scale independently and have it's own code repository.
+	+ Our users may be able to talk to our first micro service over HTTPS and we've decided to have an elastic load balancer talking to ECS, and then talking to Dynamo DB.
+	  ECS, is for docker, so for writing docker containers on AWS. This micro service usually has a DNS name or URL, so maybe it's service1.example.com, and so to get all that information maybe you will do a DNS Query
+	  to route 53, get an alias record back and then we can interact with that service. Maybe we have a second service, and this one is using a classic architecture for server-less, but instead of having Dynamo DB,
+	  we have ElastiCache. We can definitelyuse ElastiCache as the back end for Lambda. But maybe that second micro service, service two, also interacts with service one. So the lambda function will make
+	  a call to our elastic load balancer because it needs to get some information from the first micro service to be able to make a response. And then maybe we have a third micro service, also using an ELB, but this one
+	  is not server-less, it's using Amazon EC2 auto scaling and an Amazon RDS database, so more of the classic architecture we've seen from before. And it turns out that maybe the EC2 instance must make a call to the second 
+	  micro service before making a decision, so it's represented here by the dotted lines. Andthe URL for this is going to be service3.example.com.
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A3.png" width="60%" height="60%"/>
+	+ We are free to design each micro service the way you want, and this is why I had so many different random architectures.
+	+ There is two patterns for micro services. 
+	 	+ There is a synchronous pattern, so this is when we make explicit calls to other micro service, so API Gateway, Load Balancer are great way to do HTTPS calls to other micro services.
+	 	+ But there is also an asynchronous pattern using SQS, or Kinesis, or SNS, or Lambda triggers, or S3. 
+	+ There are some challenges with micro services.
+		+ You need to have some overhead for creating each new micro service.
+		+ You may get issues optimizing server density or utilization.
+		+ You may get complexity of running multiple versions of each micro service simultaneously.
+		+ You may get a proliferation of client-side code requirements to integrate with many separate services.
+	  But most of these challenges are solved by using server-less patterns. For example, API Gateway, Lambda they scale automatically and then you pay for usage. So no need to worry about server utilization.
+	  You can easily clone APIs or reproduce environments in API Gateway. And you can, for example, generate client SDK through Swagger integration for the API Gateway. 
+	+ Micro service is a design, and you can use any of this for that, and it does solve some problems, and it does add some problems.
++ Architecture 4
+	+ In this architecture, we're going to look into the problems and solution of distributing paid content. We sell videos online and the users have to pay to buy videos. 
+		+ Each video can be bought by many different customers.
+		+ We only want to distribute videos obviously to the users who are premium users, and have paid for these videos.
+		+ We have a database of who the users are, of premium users and, so we want to send links to the premium users and they should be short-lived and secure, so that not other users can use these links.
+		+ Our application should be global, and actually we want this to be fully serverless.
+	+ First, let's design our premium user service. We have our clients, rest https, talking to the the Amazon API Gateway, talking to Lambda function, talking to DynamoDB table. In this DynamoDB table we can
+	  read, update, delete a table of users. And in this table of users we can say whether or not a user is premium. We need to add some form of authentication so, for this maybe we want to authenticate
+	  with Amazon Cognito and verify authentication with API Gateway. Now, let's add a video storage service. So, our videos are going to be in S3. We know that the users may want to directly view them from S3 
+	  but, what we want is to have global and secure distribution. So, we still have our S3 bucket this is where the videos are going to be located but now we're going to have a CloudFront global distribution
+	  using an OAI talking to S3 with a bucket policy and we've ensured that now people can only access our content through CloudFront, and it's distributed globally. 
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A4_1.png" width="60%" height="60%"/>
+	  We still haven't figured out the problem of how do we allow our client to talk to CloudFront and only get premium users to get access to this content in CloudFront. We're going to want to use the feature 
+	  of signed URL of CloudFront and this is a great way to distribute premium content or paid content to users. But, we have to generate that signed URL so, we have to create or own application that will
+	  generate signed URLs. So, for this, we'll create a second Amazon API Gateway and it will verify the authentication of the clients to give them a signed URL. Amazon API Gateway will invoke a Lambda Function
+	  that has been coded to create a signed URL and for this, first, it's going to have to verify if the users that invoked this API is a premium user by looking up into Dynamo DB, and then, if it is a premium user,
+	  then it's going to use the CloudFronts API using the AWS SDK and it's going to generate a signed URL, and maybe the signed URL will have an expiration of five minutes. When it's done, Lambda returns the value 
+	  to API Gateway which returns the signed URL to our clients and now, our client can use the signed URL to access our CloudFront global distribution.
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A4_2.png" width="60%" height="60%"/>
+	+ In this architecture, We've basically implemented a fully serverless solution
+		+ Cognito for authentication
+		+ Dynamo DB for storing users that are premium
+		+ 2 serverless applications
+			+ one was used to register these premium users
+			+ and the other one was used to generate CloudFront signed URLs.
+		+ And then all this static content, all the videos were stored in S3 and S3 is serverless and scalable.
+		+ We've integrated with CloudFront with OAI for security and global distribution so that users can not bypass our security.
+		+ And CloudFront has been used to generate signed URLs to prevent unauthorized users from accessing it.
+		+ S3 signed URLs are not efficient for global access because CloudFront is more efficient for distributing stuff globally and on top of it because we have an OAI and only allow platforms to access S3,
+		  then S3 pre signed URLs would have not worked.
++ Architecture 5
+	+ Software updates offloading. We have an application running on EC2 and it distributes software updates once in a while. 
+		+ So, think about the computers that need to download the patch which sits on EC2. 
+		+ When a new software update is out, we are going to get a lot of request because a lot of people want to update. 
+		+ And so the content is distributed in mass over the networking.
+		+ It cost us so much money.
+		+ Additionally, we really don't want to change or re-architect our application. 
+		+ We just wanna optimize our cost and CPU.
+	+ Application Current State
+		+ We have a classic ELB plus ASG type of application running in multi AZ on M5 instances distributing the software updates. These software updates are put into the Amazon EFS. So how do we basically 
+		  enable these applications to scale more globally and to reduce CPU utilization and to reduce cost.
+		  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A5_CS.png" width="60%" height="60%"/>
+	+ Solution
+		+ We just put CloudFront in front. There are no changes to our architecture. They will cache software update files at the edge because the software update files don't change, they're not dynamic, 
+		  there're static, they're never changing. And so our EC2 instances, even though they're not serverless, CloudFront is and it will scale for us. So that means that our ASG will not scale as much
+		  and we'll save tremendously in EC2 cost, network cost, EFS cost and so much. And on top of it, we'll save on availability and so on. So, remember that CloudFront is such an easy way to make an 
+		  existing application more scalable and cheaper if it's mostly static content and just using some caching at the edges all around the world.
+		  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A5.png" width="60%" height="60%"/>
++ Architecture 6
+	+ Big Data Ingestion Pipeline. 
+		+ We want the application ingestion pipeline to be fully serverless, fully managed by AWS
+		+ We want to collect data in real-time
+		+ We want to transform the data
+		+ We want to query the transformed data using SQL
+		+ The reports we create using these queries, maybe they should be stored in S3
+		+ Then we want to load that data into a data warehouse and create dashboards on it.
+		+ So the usual big data problems of ingestion, collection, transformations, querying and analysis.
+	+ Let's assume that the producers of are IoT Devices. And so there is a service in Amazon Cloud services and it's called IoT Core which helps you manage these IoT devices. Now these devices can send 
+	  data in real-time, to IoT Core and IoT Core directly into a Kinesis Data Stream. So data stream for Kinesis, allows to basically pipe big data, in real-time, very fast into this Kinesis service.
+	  Now Kinesis can be talking to Kinesis Data Firehose and Firehose allows us to, for example, every one minute, put and offload data into an Amazon S3 Bucket and that will be an Ingestion Bucket.
+	  So we have a whole pipeline to get a lot of data from a lot of devices in real-time, and put it every one minute into an S3 Bucket. On top of it, it's possible for us to cleanse or really quickly 
+	  transform the data, using an AWS Lambda function, that is directly linked to Kinesis Data Firehose. So now we have that Ingestion Bucket, we can trigger an SQS Queue can trigger an AWS Lambda function 
+	  and it's optional because Lambda can be directly triggered by our S3 Bucket. So, Lambda will trigger an Amazon Athena SQL query, and this Athena query will pull data from the Ingestion Bucket and will 
+	  do an SQL query that's all serverless and their outputs of this serverless query, will go into a reporting bucket, maybe again in Amazon S3 as different Bucket. So from this we have the data, it's been reported on,
+	  it's been cleansed and analyzed, we can either directly visualize it, using QuickSight. QuickSight is a way for us to visualize the data into an Amazon S3 Bucket, or we can load our data into a proper 
+	  data warehouse for analytics, such as Amazon Redshift. Redshift is not serverless, and so this Redshift data warehouse can also serve as an end point for QuickSight.
+	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SERVERLESS/images/A6.png" width="60%" height="60%"/>
+	  This shows you, overall, what you can expect in a Big Data Ingestion Pipeline at a high level, including real-time ingestion, transformation, serverless Lambda and some data warehousing using Redshift and 
+	  visualization using QiuckSight.
+	+ In this architecture
+		+ IoT Core allows you to harvest data from many IoT devices.
+		+ Kinesis is great real-time data collection, 
+		+ Firehose helps you with data delivery to S3 in near real-time, so one minute is the lowest frequency you can choose.
+		+ Lambda can help Firehose with data transformation,
+		+ Amazon S3 can trigger notifications to SQS, SNS or Lambda.
+		+ Lambda can subscribe to SQS, but we could have connected S3 to Lambda, 
+		+ Athena is a serverless SQL service, and we can store the results of Athena directly back into S3.
+		+ And the reporting buckets contain analyzed data and we can use reporting tools, such as QuickSight, for visualization or Redshift, if we want to do more analytics on it.
 
 
