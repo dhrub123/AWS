@@ -169,8 +169,7 @@ Big enterprises use IAM federation. They integrate their own repository of users
 		  in AWS, to have a directory closer to your EC2 instances running Windows.
 	+ |AWS managed Microsoft AD|AD Connector|Simple AD|
 	  |------------------------|------------|---------|
-	  |<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/IAM/images/1.png" width="60%" height="60%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/IAM/images/2.png" width="60%" height="60%"/>|
-	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/IAM/images/3.png" width="60%" height="60%"/>|
+	  |<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/IAM/images/1.png" width="60%" height="60%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/IAM/images/2.png" width="60%" height="60%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/IAM/images/3.png" width="60%" height="60%"/>|
 	+ If the exam asks you that  we want to proxy our users to on-premise, you need AD Connector, or we want to manage our users on the cloud in AWS and have MFA, you need AWS Managed AD or we just want a Simple AD
 	  and we don't have any on-premise stuff, in this case, you want a Simple AD.
 + Handson - Go to Directory Service - We have 4 options
