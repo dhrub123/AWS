@@ -38,6 +38,10 @@
 	  a decryption and get the decrypted object as a result. The server does not know how to decrypt or encrypt the data stored, it just receives encrypted data.
 	  <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SECURITY/images/CSE.png" width="60%" height="60%"/>
 
+#### KMS
+
+
+
 #### AWS Secrets Manager
 + You can store secrets in AWS Secrets Manager. It's newer service it came after the AWS SSM parameter store was out and really the sole purpose of secrets manager is to be storing secrets.
 + The difference between secrets manager and the parameter store is that secrets manager is more oriented towards secrets and it has a capability to force the rotation of your secrets eEvery X number of days.
