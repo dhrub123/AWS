@@ -33,3 +33,6 @@ To find service charges for a month, we have to look under Billing > Bills > Fin
     + Oracle RDS: 1521
     + MSSQL Server: 1433
     + Aurora: 5432 (if PostgreSQL compatible) or 3306 (if MySQL compatible)
+
+#### Common Components
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/Introduction/CC.png"/>
