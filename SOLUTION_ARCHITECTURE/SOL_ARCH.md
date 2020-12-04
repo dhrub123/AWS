@@ -211,4 +211,212 @@ I want my code to run. I really don't care about the architecture. And I possibl
 
 #### Elastic Beanstalk handson
 
-Go to Elastic Beanstalk > Get started > Give application name, platform and upload code. > Configuration presets - Low cost(Free tier Elegibile - creates 1 ec2 instance with public ip on it), High Availability(It will create a load balancer, Auto scaling group etc.) and Custom Configuration. We select high availability and then we get a whole panel to configure like software(platform), instances(type of intance, IOPS and security group), capacity(no of instances, load balancing, autoscaling, AZ), load balancer(type, listener, process and rules), Updates and deployments, security, monitoring, managed updates, notifications, network, database and tags. > Create app. It takes 5 minutes and completes. We see health okay and an URL where our application is being served. The process has cretaed an instance, an ASG with 3 azs and an ALB, target groups, health checks and necessary security groups. To terminate go to actions > terminate and then delete the app.
+Go to Elastic Beanstalk > Get started > Give application name, platform and upload code. > Configuration presets - Low cost(Free tier Eligible - creates 1 ec2 instance with public ip on it), High Availability(It will create a load balancer, Auto scaling group etc.) and Custom Configuration. We select high availability and then we get a whole panel to configure like software(platform), instances(type of intance, IOPS and security group), capacity(no of instances, load balancing, autoscaling, AZ), load balancer(type, listener, process and rules), Updates and deployments, security, monitoring, managed updates, notifications, network, database and tags. > Create app. It takes 5 minutes and completes. We see health okay and an URL where our application is being served. The process has cretaed an instance, an ASG with 3 azs and an ALB, target groups, health checks and necessary security groups. To terminate go to actions > terminate and then delete the app.
+
+#### Event Processing in AWS - different possibilities
+
++ One way is to use a SQS queue with a Lamda function. The events are going to be inserted into our SQS queue and the Lamdda service is going to poll the SQS queue.
+  In case there are issues, it's going to put back the messages into the SQS queue and retry and this can go into some sort of infinite loop. So we can set up a dead letter queue 
+  and after say five tries send the message to the dead letter queue to avoid this.
++ Another way is to use SQS FIFO and Lamda Function. In this case, FIFO means first in, first out which means that the messages are going to be processed in order. So our Lamda function is going to 
+  try and retry to get the messages from the queue, but because it needs to process them in order, in case one message doesn't go through, it is going to be a blocking never ending process
+  and the whole queue processing will be blocked, in which case yet again, we can set up a dead letter queue to send these error messages away from the SQS queue to the DLQ.
++ Another option is to use SNS with Lambda. The message goes through SNS and is sent asynchronously to Lambda. In case the lambda can not process the message, it is going to retry processing internally,
+  and that retry will be three times and if the message is not processed successfully it will be discarded or we can set up a DLQ but this time at the Lambda service level, to send that message in to,
+  for example, a SQS queue for later processing. So with SQS, the DLQ is set up on the SQS side. And for SNS, the DLQ is set up on the Lambda side.
++ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/EP.png" width="50%" height="50%"/>
++ Fan Out Pattern - How do you deliver a data to multiple SQS queues?
+	+ One option is that our application has the AWS SDK installed on it and we have three SQS queues to deliver a message to. So we will write our application to first send a message to the first queue
+	  and then send a message to the second queue and then send again the same message to the third queue. That will work but will not be reliable. Because if our application crashes after we send a message 
+	  to the second queue, then the third queue will never receive the last message. And the content of each queue will be different. 
+	+ Instead we can use a Fan Out Pattern, which is to combine SQS queue with an SNS topic in the middle. Our SQS queues are going to be subscribers of our SNS topic in the middle.
+	  And what will happen is that any time we send a message to the SNS topic, it will be sent by the SNS service into all the SQS queues, which has a higher guarantee.
+	  So from our application perspective now, we just do a PUT into our SNS topic and automatically the SNS service will fan out that message into the other SQS queues. This is a 
+	  very common design pattern on AWS.
+	+ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/FOP.png" width="50%" height="50%"/> 
++ We can combine this with eventing on S3. We have events happening in our S3 buckets and we want to react to them happening in real time. We can react to S3 object created
+  or S3 Object Removed, S3 Object Restore or S3 Replication. And you can even have a filter to just be able to react to certain name in particular. For example, I want to filter
+  so that all the events that are created corresponds to a JPEG file or image. And the use case for this would be, for example, to generate thumbnail images of images that have been uploaded to Amazon S3 in real time.
+  So let's take an example, we upload an object into our Amazon S3 buckets and we can react in three different ways.
+  	+ The first one is to send a notification directly into an SNS topic using S3 events.
+  	+ We can send a message into an SQS queue
+  	+ We can asynchronously invoke a Lambda function.
+  	+ These are the only three possible destinations for your Amazon S3 events. If it's SNS, we can combine from the Fan Out Pattern to just send it to to multiple SQS queues.
+  	  So using one S3 events, and one SNS topic, we could send the data out to say 10 SQS queues. If we have an SQS queue, we can also, for example, create a Lambda function or an EC2 instance to read the messages
+  	  of that SQS queue, and the benefit we get out of using an SQS queue would be, for example, that if the Lamda function fails, then our message remains in our SQS queue and can be processed by another application.
+  	  And finally, if we are using Amazon Lambda, then we can do whatever we want. In case our Lambda fails because it has been invoked asynchronously, then we can define a dead letter queue on a letter function,
+  	  such as if it fails to process it three times, then we can send the message to SQS, for example, for later processing.
+  	+ You can create as many S3 events as desired on your S3 bucket so you could have as many events as you want. So you can create one event for SNS, one event for SQS, one event for Lambda, whatever you want.
+  	+ The S3 event notifications are typically delivered within seconds, but sometimes can take a minute or longer. 
+  	+ If two writes are made to a non versioned single object at the same time, then it's possible you only see one S3 event and not two. If you wanted to get an event for each and every single object that has been 
+  	  uploaded into S3, then you need to enable versioning and each version will create its own notification. 
+  	+ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/S3E.png" width="50%" height="50%"/> 
+
+#### Caching Strategies in AWS
+
++ We have CloudFront in front of an API Gateway which is in front of our application logic(could be EC2, could be Lambda). Our application stores and uses data from the database, and maybe you will use an internal cache
+  such as Redis, Memcached and DAX. This is the route for Dynamic Contents.
++ There be will a static content route, in which our client goes through a CloudFront and the CloudFront will source data from S3.
++ Caching Strategies
+	+ CloudFront does caching at the edge. That means that they're doing caching as close as possible to our users. If we enable caching in CloudFront, and the users do hit the cache, then they get a response
+	  right away, it's very very quick. But because it's at the edge, there is a chance that things have changed in the back end, and is outdated here. So we can use a TTL to make sure the cache is often renewed,
+	  and the new stuff is picked up from backend. So we have a balancing act to do between how much we want to cache at the edge, versus how much we want to cache in the app logic.
+	+ API gateway also has some caching capabilities, so it doesn't have to be used with CloudFront. API gateway is a regional service and so in case we do use the cache at the API gateway, then the cache will be 
+	  regional. There's going to be a network lag between the clients and the API gateway, if the cache is hit here. 
+	+ Then we have our app logic which usually doesn't do any caching, but it will do caching in a cache that we could use such as Redis, Memcached, or DAX if we have DynamoDB. And the idea here is that we don't want to 
+	  repeatedly hit our database, which does not have any caching capability. We want to make sure that the result of frequent or complex queries is stored into shared cache that can be accessed by your app logic more easily.
+	  And so here, we are saving by using caching here. We are saving pressure on our database, and we are augmenting the read capacity. 
+	+ There is no caching capability in your database , in Amazon S3 and so on. 
+	+ As we move along this line of caching, the more we move to the right, the more there's gonna be a cost for computation and increase in latency.
+	+ The scenario will tell where the caching is going to be most appropriate and most efficient.
+	+ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/CSAWS.png" width="50%" height="50%"/> 
+
+#### Blocking an IP Address in AWS
+
+When a request comes from the clients and goes all the way to your application, many things happen. Sometimes we may want to block an IP address from a client because it is a bad actor, 
+and it is trying to access our application. So we want to know the line of defenses available.
++ First let's start from a very simple solution architecture where we have an EC2 Instance, in a security group, in a VPC, and that instance has a public IP so is publicly accessible,
+  and this is how our clients get into our EC2 Instance. So say you wanted to block that client, the first line of defense would be the network ACL in our VPC, which is at a VPC level,
+  and in this network ACL, we can create a deny rule for this client IP address and the client will just be ejected. Then for the security group of the EC2 Instance, we can not have deny 
+  rules. We can only have allow rules, so if we know that only a subset of authorized clients can access our EC2 Instance, then in our security group we can define a subset of IP
+  to allow into our EC2 Instance. But if our application is global, we obviously don't know all the IP addresses that will access our application and so the security group here 
+  will not be very helpful. Finally, you could run an optional firewall software on your EC2 to block from within your software the request from the client. Now obviously, if the 
+  request has already reached your EC2 Instance, then it will have to be processed and there will be a CPU cost for processing that request. 
+  	+ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/IP1.png" width="50%" height="50%"/>
++ Now lets introduce an Application Load Balancer, so again this ALB is defined within our VPC and we still have our EC2 Instance, but now we have two security groups, we have the ALB security group
+  and we have the EC2 security group. And so in this case our Load Balancer in this architecture is going to be in between our clients and our EC2 and it will do something called Connection Termination.
+  The clients actually connect to the ALB which will terminate the connection and initiate a new connection from the ALB into our EC2 Instance. In this case, our EC2 security group must be configured 
+  to allow the security group of the ALB, because the EC2 Instance can be deployed in a private subnet with a private IP and the source of the traffic it sees comes from the ALB, not the client,
+  so from a security group perspective here, we only allow the ALB security group and we're safe on this side. Now for the the security group of the ALB, we need to allow the clients and again
+  if we have a range of IP we know that we can configure the security group but if it's a global application, we have to allow everything and their line of defense is going to be at the Network ACL level.
+  	+ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/IPALB.png" width="50%" height="50%"/> 
++ Now lets look at the NLB. The Network Load Balancer does not do Connection Termination. The traffic actually goes through our Network Load Balancer and so as such there's no such thing
+  as a security group for a Network Load Balancer, the traffic is passed through so that means that the client's originating IP is going to go all the way to our EC2 Instance even if our EC2 Instance sits within
+  a private subnet and has a private IP. So this can be complicated, but the idea here is that if we again know the source IPs of all the clients , we can define it in the EC2 security group but if we are trying 
+  to deny one IP address for our clients, the only line of defense here we have is our Network ACL. So the Network Load Balancer does not have a security group and all the traffic goes through it and 
+  so our EC2 Instance sees the client public IP at the edge.
+  	+ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/IPNLB.png" width="50%" height="50%"/> 
++ Now lets get back to our simpler case which was to have the ALB and here something we can do to deny an IP is to install WAF or Web Application Firewall. 
+  This WAF is going to be a little bit more expensive because this is an additional service and a firewall service but in here, we are able to do some complex filtering on IP addresses and we can establish rules
+  that will count the requests to prevent a lot of requests going on at the same time from the clients, and so we have more power over our security or our ALB. So WAF is not a service in between your client
+  and your ALB, it is a service we have installed on the ALB and we can define a bunch of rules. So this is one more line of defense.
+  	+ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/WAF.png" width="50%" height="50%"/> 
++ Similarly if we use CloudFront in front of the ALB, CloudFront sits outside our VPC. So as such, our ALB needs to allow all the CloudFront's public IPs coming from the edge locations and there's a list of it online,
+  but that's it, so coming from the ALB, it does not see the client IP, what it sees is the CloudFront public IP, and so as such the Network ACL here which sits at the boundary of our VPC is not helpful at all
+  because it can not help us block the client IP address. And so in this case if we are trying to block a client from CloudFront we have two possibilities: say we are attacked from a specific country; then we can use
+  the cloudfront's geo-restriction feature to restrict all the country from our clients to be denied on CloudFront. Or if there's one specific IP that annoys us we can again use WAF, or Web Application Firewall
+  to induce some IP address filtering just like we did before.
+  	+ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/CFS.png" width="50%" height="50%"/> 
+
+#### High Performance Computing - HPC on AWS
+
++ The cloud is the perfect place to perform High-Performance Computing. HPC is a combination of service and different options used to maximize the potential of computation within AWS.
+	+ This is because you can create a very high number of resources in no time and speed up the time by adding more resources.
+	+ You only pay for what you've used. Once you're done you can destroy the entire infrastructure and not be billed any more.
+	+ So we can have an extremely high number of instances performing computations for us and then be done with it and just pay for what we used.
+	+ We use HPC to perform genomics, computational chemistry, financial risk modeling, weather prediction, machine learning, deep learning, autonomous driving and so on.
+	+ Different Services help us do this.
+		+ Data Mangement and Transfer
+			+ Direct connect to move data GB/s per second of data into the cloud over a private secure network.
+			+ Snowballs and snowmobile to move petabytes of data to the cloud through a physical route. They're usually great for big transfers or one off transfers.
+			+ DataSync here we have to install the DataSync agents and they will help us move large amounts of data between on-premise NFS or SMB systems into S3, EFS or FSx for Windows.
+	    + Compute and networking
+	    	+ EC2 instances - We have CPU optimized or GPU optimized instances based on the type of computations we're trying to do. We can also leverage Spot Instances
+	    	  or Spot Fleets for huge cost saving and Auto Scaling to automatically scale our fleet based on the computation we're doing.
+	    	+ EC2 instances need to talk to one another and perform some computation in a distributed fashion. Then, using an EC2 placement group of type cluster
+	    	  is great to get the best network performance. In which case we have a low latency 10 Gbps network. For the cluster placement group everything's
+	    	  on the same rack, everything is on the same AZ. 
+	    	+ To further improve the performance of our EC2 instances we have 
+	    		+ EC2 Enhanced Networking also called SR-IOV. This gives you higher bandwidth, higher PPS or packet per second and lower latency.
+	    		+ We get EC2 Enhanced Networking by using
+	    			+ Elastic Network Adapter which delivers you a network speed of up to 100 Gbps. ENA is for EC2 enhancement networking, and gives you
+	    			  higher bandwidth. higher packet per second and lower latency.
+	    			+ Complicated stuff from Intel called 82599VF and that gives you up to 10 Gbps. Its legacy.
+	    			+ You can push this further by using the Elastic Fabric Adapter or EFA. This is an improved ENA dedicated for HPC for high performance computing.
+	    			  And it only works for Linux. And it's great when you have inter-node communication, or tightly coupled workloads. So think about distributed computation.
+	    			  It's going to leverage something called MPI or the Message Passing Interface standard which will bypass the underlying Linux OS to provide even lower-latency 
+	    			  and more reliable transport. 
+	    + Storage
+	    	+ Instance-attached storage, so EBS and this can scale up to 64000 IOPS if you use io1.
+	    	+ It could be an instance store, and we've seen this can scale to million of IOPS. And it's linked to the EC2 instance so it's on a hardware
+	    	  it's going to be lower latency, but we can lose it if we lose our instance.
+	    	+ Then we can use network storage such as Amazon S3 to store a large blob of data. It's not a file system it's to store large objects.
+	    	+ EFS where the IOPS is going to be scaled based on the total size of your file system.
+	    	+ We can use a provisioned IOPS mode on the EFS to get higher IOPS.
+	    	+ We've seen there's a file system that's dedicated to HPC, which was called FSx for Lustre. And Luster was for Linux and Cluster. And it's going to be HPC optimized,
+	    	  gives you millions of IOPS and in the backend it's backed by S3.
+	    + Automation and orchestration
+	    	+ AWS Batch which is a support service to perform multi-node parallel jobs and enables you to run jobs that span multiple EC2 instances. They're batch jobs, and it's very easy to schedule
+	    	  these jobs and launch the EC2 instance accordingly. They will be managed by the batch service, so batch is a very popular choice for HPC.
+	    	+ We can use something called AWS ParallelCluster which is an open source cluster management tool to deploy HPC on AWS. It's configurable with text files and it automates the creating of VPCs, Subnets,
+	    	  clusters types and instance types.
+
+#### EC2 Instance High Availability
+
+An EC2 instance, by default, it's launched in one Availability Zone, and it's not really highly available, but we can engineer something to make it highly available.
++ So we have a Public EC2 instance that's running a web server, and we wanna be able to access the web server . 
+	+ So we will attach an Elastic IP to that EC2 instance, so our users can access our website directly through this Elastic IP, and they will be directly talking to the EC2 instance and get a result from our web server. 
+	+ But now we want to have a Standby EC2 instance, just in case things go wrong, that makes our EC2 instance highly available. 
+	+ We know if something goes wrong by using monitoring. We're going to create a CloudWatch Event or a CloudWatch Alarm, based on an event. We may have a CloudWatch Event,
+	  if an instance is getting terminated. or if we are having a web server, and we know the CPU can go all the way to 100%, maybe you want to have a CloudWatch Alarm that monitors the CPU,
+	  and if we see the CPU is at 100%, maybe the EC2 instance has gone wrong, and we want to trigger an alarm based on that. So there's different ways of monitoring your EC2 instance,
+	  based on what your requirements may be. 
+	+ Then, from the Alarm or the CloudWatch Events, you could go ahead and trigger a Lambda function. 
+	+ That Lambda function, will allow you to do whatever you want, like issue API calls to start the standby instance if it hasn't been started yet and 
+	  issue another API call to attach the Elastic IP to my Standby instance. So now the Elastic IP will be attached, and it will be obviously detached from the other EC2 instance,
+	  because an Elastic IP can only be attached to one instance at a time, and the other EC2 instance, can be terminated.
+	+ So we have effectively failed over to a new Standby EC2 instance. But our users did not see anything due to the failover using the Elastic IP.
+	+ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/HAEC2.png" width="50%" height="50%"/> 
++ We can also do failover with an Auto Scaling Group.
+	+ So, we have an ASG in two Availability Zones, and again, we're using the same concept, where a user is going to be talking to our application 
+	  using an Elastic IP because it makes things a little bit simpler.
+	+ So now we configure our Auto Scaling Group by saying that the minimum amount of instances is one, the maximum is one, and we want one desired, and we specify over two Availability Zones.
+	  This means that we're going to get only one EC2 instance, and that EC2 instance may be in the first AZ. On the user data of the EC2 instance, when it does come up, its going to acquire and attach
+	  the Elastic IP address based on Tags. So this user data will issue API calls and the Elastic IP will be attached to our Public EC2 instance, and our users will be able to talk to our web server.
+	+ But now, if this instance is being terminated and it goes down, the ASG will create a Replacement EC2 instance in another AZ, and the second instance will run it's EC2 user data scripts
+	  and attach the Elastic IP.
+	+ And we have effectively failed over without a CloudWatch Alarm or a CloudWatch Event.
+	+ The Auto Scaling Group as soon as it sees that one instance has been terminated, will create a new EC2 instance and another AZ. And the reason we have one min, one max and one desired
+	  is that we'll never get more than one instance running at the same time in our entire ASG. 
+	+ Finally, because our EC2 instance does do API calls directly, to attach this Elastic IP Address, then we need to make sure that the EC2 instance has an instance role, that allows it to issue API calls
+	  to attach this Elastic IP Address.
+	+ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/HAEIP.png" width="50%" height="50%"/> 
++ We can extend this pattern.
+	+ Our EC2 instance, can be stateful and have an EBS volume.
+	+ So we have an Auto Scaling Group, two AZ, our Public EC2 instance, and an Elastic IP and an EBS Volume attached to our EC2 instance. Maybe our EC2 instance is a database and we are trying to 
+	  make that database highly available.
+	+ All of our data is onto our EBS Volume and is locked into a specific Availability Zone.
+	+ If our EC2 instance is being terminated, the Auto Scaling Group can use lifecycle hooks, and create a script to take that EBS Volume and create an EBS Snapshot from it.
+	+ It will be triggered as soon as the EC2 instance goes down, and so we know that the EBS volume will be free.
+	+ So we have an EBS Snapshot, and we tag it properly, and the ASG will be launching a Replacement EC2 instance, and now, by properly configuring our Auto Scaling Group
+	  to create a lifecycle hook on the Launch event, we can create an EBS Volume out of this EBS Snapshot into the correct Availability Zone, and then attach it to the Replacement EC2 instance.
+	+ Then the user script can also attach the Elastic IP address directly, and we need to make sure that we have an EC2 instance role for the API calls.
+	+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/HAASG.png" width="50%" height="50%"/> 
+
+
+#### High Availability Bastion Host
+
++ We have a VPC and we have two AZ.
++ Each AZ will have a public subnet and a private subnet.
++ The bastion host is used to SSH into our EC2 instances that sits in a private subnet. And to do so our clients, which is in the public Internet needs to access a bastion host being deployed
+  in the public subnets. They will do SSH into the bastion host on port 22. And then from the bastion host, SSH into the private subnets. We can also have a EC2 instance in the private subnet of 
+  another AZ and have the bastion host also do SSH directly into these instances. But we want to make this Bastion host highly available.
++ So it is an EC2 instance, it's self managed and you could be in one AZ, you could be in another AZ and we're going to be able to is make it highly available by creating a new Bastion host in another AZ.
+  So once we have two Bastion host, we have to make our clients talk to one Bastion host or another one, without really being concerned about them.
+  	+ We can create a network load balancer which will transmit at the TCP level. It's layer four because it's TCP, the TCP traffic will go into the bastion host in each AZ.
+  	+ This network load balancer can be deployed in two different public subnets. By connecting to the network load balancer which is a fixed IP directly, we can get rerouted to the bastion host.
+  	  So the bastion hosts are going to be registered with the NLB which will be directly connecting to the bastion host and then connecting to the EC2 instances behind them.
+    + Because we have a bastion host, we cannot use 
+    	+ An application load balancer because an application load balancer works at HTTP level and SSH is lower level , it is TCP. And so we would need to use something like an NLB.
+    	+ We have different options here for the bastion host. We can run two across two AZ and then we have a network load balancer with it.
+    	+ We can run one across two AZ with one ASG running in one, one nodes. So one min, one max, one desired 
+    + To route to the bastion host, we have multiple options.
+    	+ If we only have one Bastion host, then we could go back to what we see before and just using the elastic IP and then use a EC2, user datascript to access your Bastion hosts.
+    	+ If we have two Bastion hosts or more, we have a a very highly available fleet of Bastion hosts with multiple running in multiple AZ, then it's a great idea to use a network load balancer
+    	  which is layer four deployed in multiple AZ and then our clients will just connect directly into the network load balancer. And with it, actually our bastion hosts can live in the private subnets 
+    	  directly. 
+    	+ So if we had a network load balancer, the bastion host can be pushed into the private subnets and that would even simplify our task and make it even more secure.
+    	+ We cannot use an ALB because the ALB is layer seven, which is HTTP protocol. And the SSH protocol requires you to be layer four because it's TCP based only.
++ <img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/BAHA.png" width="50%" height="50%"/> 
+
+
