@@ -243,12 +243,12 @@ We will mount volumes in parallel in RAIS settings as long as OS supports it. So
   sudo mount -t efs -o tls fs-5dafeeac:/ efs(we get this command from EFS console - attach - mount via DNS) - this needs the sg configs
   sudo touch hello-world.txt( This will create the file and it will be visible in all other instances which have mounted this EFS)
   ```
-<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/EFS.png" width="50%" height="50%"/>
+<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/EFS.png" width="50%" height="35%"/>
 
 #### EBS vs EFS - Elastic block store
 |EBS|EFS|
 |---|---|
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/EBS_1.png" width="80%" height="80%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/EFS_1.png" width="80%" height="80%"/>|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/EBS_1.png" width="80%" height="80%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/EC2/images/EFS_1.png" width="80%" height="40%"/>|
 
 + In EBS we are charged for provisioned capacity, not what we use but EFS is pay per use which we can leverage for cost savings
 + EFS is for NFS to be mounted across multiple instances, EBS is for a network volume mounted to a single EC2 instance locked in AZ and instance store means 
