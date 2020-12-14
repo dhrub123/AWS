@@ -84,7 +84,7 @@
   below a threshold and scale EC2 instances or consumers according to the scaling policy. 
   |D1|D2|
   |--|--|
-  |<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/DECOUPLING/images/1.png" width="60%" height="60%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/DECOUPLING/images/2.png" width="60%" height="60%"/>|
+  |<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/DECOUPLING/images/1.png" width="60%" height="30%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/DECOUPLING/images/2.png" width="60%" height="30%"/>|
 
 #### Amazon SNS - Simple Notification Service - This is to send messages to many recievers
 
