@@ -102,11 +102,11 @@ by Amazon Web Services , not us. We want to expose our application as myapp.mydo
     
 |Simple Routing|Weighted Routing|Latency Routing Policy|
 |--------------|----------------|----------------------|
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/SIMPLE_ROUTING.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/WEIGHTED_ROUTING.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/LATENCY_ROUTING.png" width="50%" height="50%"/>|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/SIMPLE_ROUTING.png" width="50%" height="25%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/WEIGHTED_ROUTING.png" width="50%" height="25%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/LATENCY_ROUTING.png" width="50%" height="25%"/>|
 
 |Failover Routing|Geolocation Routing|
 |----------------|-------------------|
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/FAILOVER_ROUTING.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/GEOLOCATION_ROUTING.png" width="50%" height="50%"/>|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/FAILOVER_ROUTING.png" width="40%" height="25%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/ROUTE_53/images/GEOLOCATION_ROUTING.png" width="50%" height="25%"/>|
 
 #### Healthchecks
 There are health checks in Route 53, and the idea is that if an instance is unhealthy, just like an ELB, Route 53 will not send traffic to that instance.
