@@ -357,7 +357,7 @@ We can attach this ENI to an instance. We can also detach the ENI and attach it 
 
 #### EC2 Hibernate
 
-We can stop or restart EC2 instances. STOP - data on disk(EBS volume) kept intact for next start. RESTART - any data on EBS volume lost. 
+We can stop or restart EC2 instances. STOP - data on disk(EBS volume) kept intact for next start. TERMINATE - any data on EBS volume lost. 
 On START: OS boots and EC2 user data script is run. On REBOOT: OS boots, application starts, cache warmed up . All of this takes time. Hence EC2 hibernate has been introduced where in memory RAM state is preserved. So on RESTART, instance boot is much faster since OS in not stopped. Under the Hood, RAM state is written to a file in root EBS volume and the root EBS volume must be encrypted. Use cases: Long running processing, save ram state, services with large initialization time. More at https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html 
 
 + C3, C4, C4, M3, M4, M5, R3, R4, R5 supported
