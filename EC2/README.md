@@ -175,7 +175,7 @@ echo "<h1>Hello World from $(hostname -f) in AZ $EC2_AVAIL_ZONE</h1>" > /var/www
 ##### EC2 Spot Instances
 
 + We define a max spot price which we are willing to pay and we get instance while **current spot price < max spot price**. The hourly spot price varies based on offer and capacity.It will go up and down. 
-  + Strategy 1 : If current spot price > max spot price, we can choose to stop or terminate within a 2 hour grace period. If we stop, we can continue when current spot price < max spot price again. 
+  + Strategy 1 : If current spot price > max spot price, we can choose to stop or terminate within a 2 minute grace period. If we stop, we can continue when current spot price < max spot price again. 
   + Strategy 2 : Spot block - block spot instance during a specified time (1 - 6 hours) without interruption. In rare situations , they are reclaimed by AWS.
 
 + 90% discount compared to on demand. But we can lose them at any point of time if current spot price goes over the max spot price
