@@ -310,39 +310,42 @@ Snowball > Set Security > Permission(IAM Role - which allows snowball to import 
     Then activate it and configure local disks.
 
 #### Amazon FSx
-
 We have a newer kind of storage offering from AWS, which is called Amazon FSx. It in two different flavors.
-	+ Amazon FSx for Windows File Server
-		+ EFS is a shared POSIX file system. It can only be used by Linux EC2 instances, or on-premise machines. Therefore, you can not use EFS with your Windows servers.
-		  So how do you share storage between your Windows servers? 
-		+ Amazon came up with FSx for Windows. It's a fully managed Windows file system shared drive.
-		+ It supports the SMB protocol and Windows NTFS.
-		+ It supports Active Directory integration , ACLs, and user quotas.
-		+ It's built on top of SSD, it has a massive scale, it can scale to 10s of GB/s, millions of IOPS, and 100s of PBs of data.
-		+ So it's a scalable distiributed file system for for Windows, that is managed by AWS.
-		+ It can also be accessed from your on-premise infrastructure.
-		+ It can be configured to be Multi-AZ and gets high availability.
-		+ Data is backed up daily to Amazon S3, so you can always recover your file system directly from S3.
-		+ Anytime you have shared storage for your Windows instances, it is Amazon FSx for Windows.
-		+ FSx for Windows is going to be for a distributable file system for your Windows instances
-	+ Amazon FSx for Lustre
-		+ Lustre is a type of parallel distributed file system for large-scale computing. Lustre is derived from the term Linux and cluster.
-		  So Lustre is for Linux instances, and because it comes from cluster it's meant for large-scale computing.
-		+ We use Lustre for Machine Learning, High Performance Computing or HPC.
-		+ Anytime you need a file system to perform these High Performance Computing, use Lustre.
-		+ We can also do video processing, financial modeling, electronic design animation, anything that requires a high level of distribution for your file system and your computation.
-		+ It scales up to 100 of GB/s, millions of IOPS, and has sub-millisecond latencies. So it is really meant for High Performance Computing, or HPC, and has a seamless integration with S3.
-		+ We can read your S3 like it's a file system through FSx for Lustre, and you can write the output of whatever computation you're doing back to S3, again through using FSx for Lustre.
-		+ So FSx for Lustre is a way to expose your S3 buckets, as a file system as well, to your Linux instances.
-		+ It can also be used from on-premise servers.
-		+ It is going to be for Linux, and it's going to have a cluster, a High Performance Computing cluster, that has a file system that is shared, with high IOPS, high throughputs,
-		  very low latency, and integration with S3 as a backend
-	+ Go to sx > Create File System - 2 options(Windows and Lustre), File System Name, Deployment Type(Multi AZ or Single AZ for HA), Storage Capacity(For windows min is 32 GB and max is 65536 GB),
-	  specify throughput capacity, we can use recommended throughput capacity or specify throughput capacity(We can go up from 8 MB/s to 2048 MB/s). The FSx for Windows is not elastic, we have to provision
-	  this in advance. We have to attach a Security group and we have a preferred or standard subnet. Then we have Windows Authentication(AWS or self managed), Encryption.
-	  For Lustre, Storage capacities are 1200 GB, 2400 GB or increments of 3600 GB. Throughput capacity = storage capacity in TB * 200 MB/s/TB, so for storage capacity of 10 TB, we will get a throughput of 2 GB/s.
-	  We can increase capacity and insane throughput as a result. We then have network and security(SG, Default VPC and subnet), this is encrypted by default at rest with keys managed by FSx using
-	  XTS-AES-256 block cipher, we can integrate with S3 for data source of file system.
+  + Amazon FSx for Windows File Server
+    + EFS is a shared POSIX file system. It can only be used by Linux EC2 instances, or on-premise machines. Therefore, you can not use EFS with your Windows servers.
+      So how do you share storage between your Windows servers? 
+    + Amazon came up with FSx for Windows. It's a fully managed Windows file system shared drive.
+    + It supports the SMB protocol and Windows NTFS.
+    + It supports Active Directory integration , ACLs, and user quotas.
+    + It's built on top of SSD, it has a massive scale, it can scale to 10s of GB/s, millions of IOPS, and 100s of PBs of data.
+    + So it's a scalable distiributed file system for for Windows, that is managed by AWS.
+    + It can also be accessed from your on-premise infrastructure.
+    + It can be configured to be Multi-AZ and gets high availability.
+    + Data is backed up daily to Amazon S3, so you can always recover your file system directly from S3.
+    + Anytime you have shared storage for your Windows instances, it is Amazon FSx for Windows.
+    + FSx for Windows is going to be for a distributable file system for your Windows instances
+  + Amazon FSx for Lustre
+    + Lustre is a type of parallel distributed file system for large-scale computing. Lustre is derived from the term Linux and cluster.
+      So Lustre is for Linux instances, and because it comes from cluster it's meant for large-scale computing.
+    + We use Lustre for Machine Learning, High Performance Computing or HPC.
+    + Anytime you need a file system to perform these High Performance Computing, use Lustre.
+    + We can also do video processing, financial modeling, electronic design animation, anything that requires a high level of distribution for your file system and your
+      computation.
+    + It scales up to 100 of GB/s, millions of IOPS, and has sub-millisecond latencies. So it is really meant for High Performance Computing, or HPC, and has a seamless 
+      integration with S3.
+    + We can read your S3 like it's a file system through FSx for Lustre, and you can write the output of whatever computation you're doing back to S3, again through using 
+      FSx for Lustre.
+    + So FSx for Lustre is a way to expose your S3 buckets, as a file system as well, to your Linux instances.
+    + It can also be used from on-premise servers.
+    + It is going to be for Linux, and it's going to have a cluster, a High Performance Computing cluster, that has a file system that is shared, with high IOPS, high 
+      throughputs, very low latency, and integration with S3 as a backend
+    + Go to sx > Create File System - 2 options(Windows and Lustre), File System Name, Deployment Type(Multi AZ or Single AZ for HA), Storage Capacity(For windows min is 32 GB
+      and max is 65536 GB), specify throughput capacity, we can use recommended throughput capacity or specify throughput capacity(We can go up from 8 MB/s to 2048 MB/s). The
+      FSx for Windows is not elastic, we have to provision this in advance. We have to attach a Security group and we have a preferred or standard subnet. Then we have Windows
+      Authentication(AWS or self managed), Encryption. For Lustre, Storage capacities are 1200 GB, 2400 GB or increments of 3600 GB. Throughput capacity = storage capacity in 
+      TB * 200 MB/s/TB, so for storage capacity of 10 TB, we will get a throughput of 2 GB/s. We can increase capacity and insane throughput as a result. We then have network 
+      and security(SG, Default VPC and subnet), this is encrypted by default at rest with keys managed by FSx using XTS-AES-256 block cipher, we can integrate with S3 for data
+      source of file system.
 
 #### Comparison among different file systems
 
