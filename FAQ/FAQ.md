@@ -18,4 +18,8 @@
 + Enhanced networking - SR IOV with HVM AMI , no additonal fee 
 + We cannot enable hibernation on an existing instance - running or stopped.If hibernation fails because, ebs volume is not large enough to store ram data, the instance will be 
   shut down. Hibernate stores ram state.
++ Billing is per second or per hour depending on instance type. Billing commences with 1st boot cycle and stops when the instance stops or is not in running state. When an  
+  instance is stopped, billing for ec2 stops but ebs volumes are still charged. Data transfer between 2 ec2s in different azs or regions are charged on both sides like
+  data transfer out for 1st instance and data transfer in for second instance.
 + 
+
