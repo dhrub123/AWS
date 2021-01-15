@@ -50,11 +50,11 @@ but when our app will get more and more popular,  we'll need to scale vertically
 
 |Step 5|Step 6|
 |------|------|
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_5.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_6.png" width="50%" height="50%"/>|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_5.png" width="70%" height="25%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_6.png" width="70%" height="25%"/>|
 
 |Step 7|Step8|
 |------|-----|
-|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_7.png" width="50%" height="50%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_8.png" width="50%" height="50%"/>|
+|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_7.png" width="75%" height="25%"/>|<img src="https://raw.githubusercontent.com/dhrub123/AWS/master/SOLUTION_ARCHITECTURE/images/U1_8.png" width="75%" height="25%"/>|
 
 
 An Well-Architected Framework in AWS, has five pillars to it and they are cost, performance, reliability, security, and operational excellence.
